@@ -1,0 +1,299 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
+
+:root {
+  --bg-dark: #0f172a;
+  --bg-table: radial-gradient(circle at center, #166534 0%, #064e3b 100%);
+  --text-light: #f8fafc;
+  --text-muted: #94a3b8;
+  
+  --card-bg: #ffffff;
+  --card-red: #ef4444;
+  --card-black: #0f172a;
+  
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+  --accent: #fbbf24;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background-color: var(--bg-dark);
+  color: var(--text-light);
+  height: 100vh;
+  overflow: hidden;
+  margin: 0;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 16px;
+}
+
+.lobby-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: var(--bg-dark);
+}
+
+.lobby-card {
+  padding: 3rem;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+}
+
+.lobby-card h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(to right, #fbbf24, #f59e0b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.lobby-card input {
+  width: 100%;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  background: rgba(0,0,0,0.2);
+  color: white;
+  font-size: 1.1rem;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.lobby-card input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+  color: #000;
+  font-weight: 700;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-family: inherit;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(217, 119, 6, 0.3);
+}
+
+.game-container {
+  height: 100%;
+  background: var(--bg-table);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-area {
+  flex: 1;
+  position: relative;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.player-top {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  z-index: 2;
+}
+
+.player-left {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 2;
+}
+
+.player-right {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 2;
+}
+
+.player-bottom {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 10;
+}
+
+.play-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
+.card {
+  width: 100px;
+  height: 140px;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 8px;
+  font-weight: bold;
+  font-size: 1.5rem;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, margin 0.2s ease;
+  position: relative;
+  margin-left: -20px; /* Reduced overlap so cards are highly visible */
+}
+
+.card:first-child {
+  margin-left: 0;
+}
+
+.card:hover {
+  transform: translateY(-20px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+  z-index: 10;
+}
+
+.card.red {
+  color: var(--card-red);
+}
+.card.black {
+  color: var(--card-black);
+}
+
+.card-top-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.card-center {
+  font-size: 3rem;
+  align-self: center;
+}
+
+.card-bottom-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: rotate(180deg);
+  line-height: 1;
+}
+
+.card-back {
+  width: 80px;
+  height: 112px;
+  background: repeating-linear-gradient(45deg, #0f172a, #0f172a 10px, #1e293b 10px, #1e293b 20px);
+  border: 4px solid white;
+  border-radius: 6px;
+  margin-left: -40px; /* Spread out top player's cards */
+}
+.card-back:first-child { margin-left: 0; }
+
+.player-left .card-back, .player-right .card-back {
+  margin-left: 0;
+  margin-top: -60px; /* Spread out side players' cards */
+}
+.player-left .card-back:first-child, .player-right .card-back:first-child { margin-top: 0; }
+
+.game-info {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  padding: 1rem;
+  z-index: 100;
+}
+
+/* Responsive scaling for different resolutions */
+@media (max-width: 900px) {
+  .table-area { transform: scale(0.8); transform-origin: center center; }
+}
+@media (max-width: 600px) {
+  .table-area { transform: scale(0.6); transform-origin: center center; }
+}
+@media (max-height: 700px) {
+  .table-area { transform: scale(0.85); transform-origin: center center; }
+}
+@media (max-height: 600px) {
+  .table-area { transform: scale(0.7); transform-origin: center center; }
+}
+
+.game-info h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: var(--accent);
+}
+
+.hukum-display {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  background: rgba(0,0,0,0.5);
+  margin-top: 0.5rem;
+  font-size: 1.2rem;
+}
+
+/* Disabled animations to avoid opacity bugs */
+.played-card {
+  position: absolute;
+  margin: 0;
+  transform-origin: center;
+}
+.played-card:hover {
+  transform: none;
+}
