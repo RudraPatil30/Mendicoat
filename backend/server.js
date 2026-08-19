@@ -12,8 +12,8 @@ const io = new Server(server, {
 // Serve the compiled React frontend
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
-// Fallback route for React Router
-app.get('*', (req, res) => {
+// Fallback route for React Router (using regex to avoid Express 5 path-to-regexp errors)
+app.get(/.*/, (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
 });
 
