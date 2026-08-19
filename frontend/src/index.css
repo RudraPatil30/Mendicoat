@@ -146,10 +146,54 @@ body {
   z-index: 2;
 }
 
+.player-bottom-left {
+  position: absolute;
+  left: 20px;
+  bottom: 20%;
+  transform: translateY(50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 2;
+}
+
+.player-top-left {
+  position: absolute;
+  left: 20px;
+  top: 20%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 2;
+}
+
 .player-right {
   position: absolute;
   right: 20px;
   top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 2;
+}
+
+.player-bottom-right {
+  position: absolute;
+  right: 20px;
+  bottom: 20%;
+  transform: translateY(50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 2;
+}
+
+.player-top-right {
+  position: absolute;
+  right: 20px;
+  top: 20%;
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
@@ -245,11 +289,15 @@ body {
 }
 .card-back:first-child { margin-left: 0; }
 
-.player-left .card-back, .player-right .card-back {
+.player-left .card-back, .player-right .card-back,
+.player-bottom-left .card-back, .player-bottom-right .card-back,
+.player-top-left .card-back, .player-top-right .card-back {
   margin-left: 0;
   margin-top: -60px; /* Spread out side players' cards */
 }
-.player-left .card-back:first-child, .player-right .card-back:first-child { margin-top: 0; }
+.player-left .card-back:first-child, .player-right .card-back:first-child,
+.player-bottom-left .card-back:first-child, .player-bottom-right .card-back:first-child,
+.player-top-left .card-back:first-child, .player-top-right .card-back:first-child { margin-top: 0; }
 
 .game-info {
   position: absolute;

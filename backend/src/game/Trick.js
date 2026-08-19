@@ -1,6 +1,7 @@
 class Trick {
-    constructor(leadPlayerId) {
+    constructor(leadPlayerId, maxPlayers = 4) {
         this.leadPlayerId = leadPlayerId;
+        this.maxPlayers = maxPlayers;
         this.cards = []; // Array of { playerId, card }
         this.leadSuit = null;
         this.winnerPlayerId = null;
@@ -17,7 +18,7 @@ class Trick {
     }
 
     isFull() {
-        return this.cards.length === 4;
+        return this.cards.length === this.maxPlayers;
     }
 }
 

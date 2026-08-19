@@ -12,52 +12,91 @@ const io = new Server(server, {
 // Serve the compiled React frontend
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
-const matchmakingQueue = [];
+const rooms = new Map();
 const activeGames = new Map();
 
 io.on('connection', (socket) => {
     console.log(`User connected: ${socket.id}`);
 
-    socket.on('join_queue', (userData) => {
-        const player = { socketId: socket.id, ...userData };
-        matchmakingQueue.push(player);
+    // Create a new room (Host)
+    socket.on('create_room', ({ playerName, maxPlayers }) => {
+        const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+        const player = { socketId: socket.id, id: socket.id, name: playerName, team: null, isHost: true };
         
-        console.log(`Player ${player.name} joined queue. Queue size: ${matchmakingQueue.length}`);
+        rooms.set(roomId, {
+            id: roomId,
+            maxPlayers: maxPlayers,
+            hostId: socket.id,
+            players: [player],
+            status: 'LOBBY'
+        });
+        
+        socket.join(roomId);
+        socket.emit('room_created', { roomId, roomState: rooms.get(roomId) });
+    });
 
-        if (matchmakingQueue.length >= 4) {
-            const players = matchmakingQueue.splice(0, 4);
-            const roomId = `room_${Date.now()}`;
-            
-            players.forEach(p => {
-                const s = io.sockets.sockets.get(p.socketId);
-                if (s) s.join(roomId);
-            });
+    // Join an existing room
+    socket.on('join_room', ({ roomId, playerName }) => {
+        const room = rooms.get(roomId);
+        if (!room) return socket.emit('error', 'Room not found');
+        if (room.status !== 'LOBBY') return socket.emit('error', 'Game already started');
+        if (room.players.length >= room.maxPlayers) return socket.emit('error', 'Room is full');
+        
+        const player = { socketId: socket.id, id: socket.id, name: playerName, team: null, isHost: false };
+        room.players.push(player);
+        
+        socket.join(roomId);
+        io.to(roomId).emit('lobby_update', room);
+    });
 
-            const GameEngine = require('./src/game/GameEngine');
-            const Team = require('./src/game/Team');
-            const Player = require('./src/game/Player');
-
-            const engine = new GameEngine(roomId);
-            
-            const team1 = new Team('t1', 'Team A');
-            const team2 = new Team('t2', 'Team B');
-            
-            const p1 = new Player(players[0].id, players[0].name, team1.id);
-            const p2 = new Player(players[1].id, players[1].name, team2.id);
-            const p3 = new Player(players[2].id, players[2].name, team1.id);
-            const p4 = new Player(players[3].id, players[3].name, team2.id);
-
-            team1.addPlayer(p1);
-            team1.addPlayer(p3);
-            team2.addPlayer(p2);
-            team2.addPlayer(p4);
-
-            engine.initializeGame([p1, p2, p3, p4], team1, team2);
-            activeGames.set(roomId, engine);
-
-            io.to(roomId).emit('match_found', { roomId, players });
-            io.to(roomId).emit('game_start', engine.gameState);
+    // Join a specific team
+    socket.on('join_team', ({ roomId, teamId }) => {
+        const room = rooms.get(roomId);
+        if (!room) return;
+        
+        const player = room.players.find(p => p.socketId === socket.id);
+        if (player) {
+            // Validate team size
+            const teamCount = room.players.filter(p => p.team === teamId).length;
+            if (teamCount >= room.maxPlayers / 2) {
+                return socket.emit('error', 'Team is full');
+            }
+            player.team = teamId;
+            io.to(roomId).emit('lobby_update', room);
         }
+    });
+
+    // Start game (Host only)
+    socket.on('start_game', ({ roomId }) => {
+        const room = rooms.get(roomId);
+        if (!room) return;
+        if (room.hostId !== socket.id) return socket.emit('error', 'Only host can start');
+        
+        const teamA = room.players.filter(p => p.team === 'A');
+        const teamB = room.players.filter(p => p.team === 'B');
+        
+        if (teamA.length !== room.maxPlayers / 2 || teamB.length !== room.maxPlayers / 2) {
+            return socket.emit('error', 'Teams must be fully balanced to start');
+        }
+
+        room.status = 'PLAYING';
+        io.to(roomId).emit('lobby_update', room);
+
+        const GameEngine = require('./src/game/GameEngine');
+        const Team = require('./src/game/Team');
+        const Player = require('./src/game/Player');
+
+        const engine = new GameEngine(roomId);
+        const t1 = new Team('A', 'Team A');
+        const t2 = new Team('B', 'Team B');
+
+        teamA.forEach(p => t1.addPlayer(new Player(p.id, p.name, t1.id)));
+        teamB.forEach(p => t2.addPlayer(new Player(p.id, p.name, t2.id)));
+
+        engine.initializeGame(t1, t2);
+        activeGames.set(roomId, engine);
+
+        io.to(roomId).emit('game_start', engine.gameState);
     });
 
     socket.on('play_card', ({ roomId, playerId, card }) => {
@@ -77,8 +116,16 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         console.log(`User disconnected: ${socket.id}`);
-        const idx = matchmakingQueue.findIndex(p => p.socketId === socket.id);
-        if (idx !== -1) matchmakingQueue.splice(idx, 1);
+        // Remove from rooms if in lobby
+        for (const [roomId, room] of rooms.entries()) {
+            if (room.status === 'LOBBY') {
+                const idx = room.players.findIndex(p => p.socketId === socket.id);
+                if (idx !== -1) {
+                    room.players.splice(idx, 1);
+                    io.to(roomId).emit('lobby_update', room);
+                }
+            }
+        }
     });
 });
 

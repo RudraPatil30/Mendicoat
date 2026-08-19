@@ -10,24 +10,43 @@ const GameTable = ({ gameState, playerId, onPlayCard }) => {
     // For a spectator or unmatched case
     if (!myPlayer) return <div>Player not found in this game</div>;
 
-    const leftIndex = (myIndex + 1) % 4;
-    const topIndex = (myIndex + 2) % 4;
-    const rightIndex = (myIndex + 3) % 4;
-
-    const leftPlayer = gameState.players[leftIndex];
-    const topPlayer = gameState.players[topIndex];
-    const rightPlayer = gameState.players[rightIndex];
+    const numPlayers = gameState.players.length;
+    const opponentLayout = [];
+    
+    for(let i=1; i<numPlayers; i++) {
+        const pIndex = (myIndex + i) % numPlayers;
+        const player = gameState.players[pIndex];
+        let cssClass, trans;
+        
+        if (numPlayers === 4) {
+            if (i === 1) { cssClass = 'player-left'; trans = 'translateX(-60px)'; }
+            else if (i === 2) { cssClass = 'player-top'; trans = 'translateY(-60px)'; }
+            else if (i === 3) { cssClass = 'player-right'; trans = 'translateX(60px)'; }
+        } else {
+            if (i === 1) { cssClass = 'player-bottom-left'; trans = 'translate(-40px, 40px)'; }
+            else if (i === 2) { cssClass = 'player-top-left'; trans = 'translate(-40px, -40px)'; }
+            else if (i === 3) { cssClass = 'player-top'; trans = 'translateY(-60px)'; }
+            else if (i === 4) { cssClass = 'player-top-right'; trans = 'translate(40px, -40px)'; }
+            else if (i === 5) { cssClass = 'player-bottom-right'; trans = 'translate(40px, 40px)'; }
+        }
+        opponentLayout.push({ player, cssClass, trans });
+    }
 
     const currentTrick = gameState.currentRound?.currentTrick?.cards || [];
     const turnPlayerId = gameState.players[gameState.currentRound?.turnIndex]?.id;
     const isMyTurn = turnPlayerId === playerId;
 
-    const renderCardBacks = (count) => {
+    const renderCardBacks = (count, cssClass) => {
         const backs = [];
         for(let i=0; i<count; i++) {
             backs.push(<div key={i} className="card-back shadow-md"></div>);
         }
-        return backs;
+        const isHorizontal = cssClass === 'player-top';
+        return (
+            <div style={{display: 'flex', flexDirection: isHorizontal ? 'row' : 'column'}}>
+                {backs}
+            </div>
+        );
     };
 
     const getPlayedCard = (pId) => {
@@ -57,45 +76,31 @@ const GameTable = ({ gameState, playerId, onPlayCard }) => {
             </div>
 
             <div className="table-area">
-                <div className="player-top">
-                    <div style={{display: 'flex'}}>
-                        {renderCardBacks(topPlayer.hand.length || 0)}
+                
+                {opponentLayout.map(opp => (
+                    <div key={opp.player.id} className={opp.cssClass}>
+                        {renderCardBacks(opp.player.hand.length || 0, opp.cssClass)}
                     </div>
-                </div>
-
-                <div className="player-left">
-                    <div style={{display: 'flex', flexDirection: 'column'}}>
-                        {renderCardBacks(leftPlayer.hand.length || 0)}
-                    </div>
-                </div>
+                ))}
 
                 <div className="play-center">
-                    {getPlayedCard(topPlayer.id) && (
-                        <div className="played-card" style={{transform: 'translateY(-60px)'}}>
-                            <Card card={getPlayedCard(topPlayer.id)} isPlayed={true} />
-                        </div>
-                    )}
-                    {getPlayedCard(leftPlayer.id) && (
-                        <div className="played-card" style={{transform: 'translateX(-60px)'}}>
-                            <Card card={getPlayedCard(leftPlayer.id)} isPlayed={true} />
-                        </div>
-                    )}
-                    {getPlayedCard(rightPlayer.id) && (
-                        <div className="played-card" style={{transform: 'translateX(60px)'}}>
-                            <Card card={getPlayedCard(rightPlayer.id)} isPlayed={true} />
-                        </div>
-                    )}
+                    {/* Render Opponent Trick Cards */}
+                    {opponentLayout.map(opp => {
+                        const played = getPlayedCard(opp.player.id);
+                        if (!played) return null;
+                        return (
+                            <div key={opp.player.id} className="played-card" style={{transform: opp.trans}}>
+                                <Card card={played} isPlayed={true} />
+                            </div>
+                        );
+                    })}
+
+                    {/* Render My Trick Card */}
                     {getPlayedCard(myPlayer.id) && (
                         <div className="played-card" style={{transform: 'translateY(60px)'}}>
                             <Card card={getPlayedCard(myPlayer.id)} isPlayed={true} />
                         </div>
                     )}
-                </div>
-
-                <div className="player-right">
-                    <div style={{display: 'flex', flexDirection: 'column'}}>
-                        {renderCardBacks(rightPlayer.hand.length || 0)}
-                    </div>
                 </div>
 
                 <div className="player-bottom">

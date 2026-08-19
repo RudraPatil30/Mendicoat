@@ -9,8 +9,9 @@ const SOCKET_URL = import.meta.env.DEV ? 'http://localhost:3001' : undefined;
 function App() {
   const [socket, setSocket] = useState(null);
   const [playerId, setPlayerId] = useState(null);
+  const [playerName, setPlayerName] = useState('');
   const [gameState, setGameState] = useState(null);
-  const [inQueue, setInQueue] = useState(false);
+  const [roomState, setRoomState] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
@@ -19,11 +20,17 @@ function App() {
 
     newSocket.on('connect', () => {
       console.log('Connected to server');
+      setPlayerId(newSocket.id);
     });
 
-    newSocket.on('match_found', (data) => {
-      console.log('Match found!', data);
-      setInQueue(false);
+    newSocket.on('room_created', ({ roomId, roomState }) => {
+      console.log('Room created:', roomId);
+      setRoomState(roomState);
+    });
+
+    newSocket.on('lobby_update', (updatedRoom) => {
+      console.log('Lobby update:', updatedRoom);
+      setRoomState(updatedRoom);
     });
 
     newSocket.on('game_start', (initialState) => {
@@ -49,12 +56,26 @@ function App() {
     return () => newSocket.close();
   }, []);
 
-  const handleJoin = (name) => {
-    const newId = `user_${Math.random().toString(36).substr(2, 9)}`;
-    setPlayerId(newId);
-    
-    socket.emit('join_queue', { id: newId, name });
-    setInQueue(true);
+  const handleCreateRoom = (name, maxPlayers) => {
+    setPlayerName(name);
+    socket.emit('create_room', { playerName: name, maxPlayers });
+  };
+
+  const handleJoinRoom = (name, roomId) => {
+    setPlayerName(name);
+    socket.emit('join_room', { roomId, playerName: name });
+  };
+
+  const handleJoinTeam = (teamId) => {
+    if (roomState) {
+      socket.emit('join_team', { roomId: roomState.id, teamId });
+    }
+  };
+
+  const handleStartGame = () => {
+    if (roomState) {
+      socket.emit('start_game', { roomId: roomState.id });
+    }
   };
 
   const handlePlayCard = (card) => {
@@ -79,19 +100,14 @@ function App() {
       )}
 
       {!gameState ? (
-        inQueue ? (
-          <div className="lobby-container">
-            <div className="lobby-card glass">
-              <h2>Waiting for other players...</h2>
-              <div style={{marginTop: '2rem'}}>
-                <div style={{width: 40, height: 40, border: '4px solid var(--glass-border)', borderTopColor: 'var(--accent)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto'}}></div>
-              </div>
-              <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
-            </div>
-          </div>
-        ) : (
-          <Lobby onJoin={handleJoin} />
-        )
+        <Lobby 
+          roomState={roomState}
+          playerId={playerId}
+          onCreateRoom={handleCreateRoom}
+          onJoinRoom={handleJoinRoom}
+          onJoinTeam={handleJoinTeam}
+          onStartGame={handleStartGame}
+        />
       ) : (
         <GameTable 
           gameState={gameState} 

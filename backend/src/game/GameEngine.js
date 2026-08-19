@@ -8,19 +8,32 @@ class GameEngine {
         this.gameState = new GameState(roomId);
     }
 
-    initializeGame(players, team1, team2) {
+    initializeGame(team1, team2) {
         this.gameState.setTeams(team1, team2);
-        this.gameState.setPlayers(players);
+        
+        // Weave players for alternate seating (T1, T2, T1, T2...)
+        const sortedPlayers = [];
+        const t1Players = team1.players;
+        const t2Players = team2.players;
+        const maxLen = Math.max(t1Players.length, t2Players.length);
+        
+        for (let i = 0; i < maxLen; i++) {
+            if (t1Players[i]) sortedPlayers.push(t1Players[i]);
+            if (t2Players[i]) sortedPlayers.push(t2Players[i]);
+        }
+        
+        this.gameState.setPlayers(sortedPlayers);
         this.gameState.status = 'DEALING';
         this.startRound();
     }
 
     startRound() {
-        const dealerIndex = this.gameState.history.length % 4;
-        this.gameState.currentRound = new Round(dealerIndex);
+        const numPlayers = this.gameState.players.length;
+        const dealerIndex = this.gameState.history.length % numPlayers;
+        this.gameState.currentRound = new Round(dealerIndex, numPlayers);
         this.gameState.hukumSuit = null;
 
-        const deck = new Deck();
+        const deck = new Deck(numPlayers);
         deck.deal(this.gameState.players);
         
         this.gameState.status = 'PLAYING';
@@ -58,7 +71,8 @@ class GameEngine {
         if (currentTrick.isFull()) {
             this.handleTrickCompletion();
         } else {
-            round.turnIndex = (round.turnIndex + 1) % 4;
+            const numPlayers = this.gameState.players.length;
+            round.turnIndex = (round.turnIndex + 1) % numPlayers;
         }
 
         return { success: true };

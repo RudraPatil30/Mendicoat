@@ -9,8 +9,9 @@ const RANKS = [
 ];
 
 class Deck {
-    constructor() {
+    constructor(maxPlayers = 4) {
         this.cards = [];
+        this.maxPlayers = maxPlayers;
         this.initialize();
     }
 
@@ -18,6 +19,10 @@ class Deck {
         this.cards = [];
         for (const suit of SUITS) {
             for (const rankObj of RANKS) {
+                // If 6 players, remove all '2's (value 2) to get a 48 card deck
+                if (this.maxPlayers === 6 && rankObj.value === 2) {
+                    continue;
+                }
                 this.cards.push({
                     suit: suit,
                     rank: rankObj.rank,
@@ -37,14 +42,14 @@ class Deck {
     }
 
     deal(players) {
-        if (players.length !== 4) throw new Error("Must have 4 players to deal.");
+        if (players.length !== this.maxPlayers) throw new Error("Player count mismatch.");
         this.shuffle();
         let pIndex = 0;
         for (let i = 0; i < this.cards.length; i++) {
             players[pIndex].addCards([this.cards[i]]);
-            pIndex = (pIndex + 1) % 4;
+            pIndex = (pIndex + 1) % this.maxPlayers;
         }
-        this.cards = []; // Deck is empty after dealing all 52 cards
+        this.cards = []; // Deck is empty after dealing
     }
 }
 
