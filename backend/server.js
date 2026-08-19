@@ -37,7 +37,8 @@ io.on('connection', (socket) => {
 
     // Join an existing room
     socket.on('join_room', ({ roomId, playerName }) => {
-        const room = rooms.get(roomId);
+        const upperRoomId = roomId.toUpperCase();
+        const room = rooms.get(upperRoomId);
         if (!room) return socket.emit('error', 'Room not found');
         if (room.status !== 'LOBBY') return socket.emit('error', 'Game already started');
         if (room.players.length >= room.maxPlayers) return socket.emit('error', 'Room is full');
@@ -45,8 +46,8 @@ io.on('connection', (socket) => {
         const player = { socketId: socket.id, id: socket.id, name: playerName, team: null, isHost: false };
         room.players.push(player);
         
-        socket.join(roomId);
-        io.to(roomId).emit('lobby_update', room);
+        socket.join(upperRoomId);
+        io.to(upperRoomId).emit('lobby_update', room);
     });
 
     // Join a specific team

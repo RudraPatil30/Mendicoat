@@ -73,7 +73,7 @@ const Lobby = ({ roomState, playerId, onCreateRoom, onJoinRoom, onJoinTeam, onSt
                         type="text" 
                         placeholder="Room Code" 
                         value={roomCode} 
-                        onChange={(e) => setRoomCode(e.target.value)} 
+                        onChange={(e) => setRoomCode(e.target.value.toUpperCase())} 
                         style={{marginBottom: 0}}
                     />
                     <button className="btn-primary" onClick={() => name && roomCode && onJoinRoom(name, roomCode)}>Join Room</button>
