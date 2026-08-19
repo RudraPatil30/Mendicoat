@@ -12,6 +12,11 @@ const io = new Server(server, {
 // Serve the compiled React frontend
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
+// Fallback route for React Router
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/dist', 'index.html'));
+});
+
 const rooms = new Map();
 const activeGames = new Map();
 
