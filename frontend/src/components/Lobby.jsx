@@ -64,8 +64,8 @@ const Lobby = ({ roomState, playerId, onCreateRoom, onJoinRoom, onJoinTeam, onSt
                 />
 
                 <div style={{display: 'flex', gap: '1rem', marginBottom: '2rem'}}>
-                    <button className="btn-primary" onClick={() => name && onCreateRoom(name, 4)}>Create 4-Player</button>
-                    <button className="btn-primary" onClick={() => name && onCreateRoom(name, 6)}>Create 6-Player</button>
+                    <button className="btn-primary" disabled={!name.trim()} style={{opacity: name.trim() ? 1 : 0.5}} onClick={() => name && onCreateRoom(name, 4)}>Create 4-Player</button>
+                    <button className="btn-primary" disabled={!name.trim()} style={{opacity: name.trim() ? 1 : 0.5}} onClick={() => name && onCreateRoom(name, 6)}>Create 6-Player</button>
                 </div>
 
                 <div style={{display: 'flex', gap: '1rem', alignItems: 'center'}}>
@@ -76,7 +76,7 @@ const Lobby = ({ roomState, playerId, onCreateRoom, onJoinRoom, onJoinTeam, onSt
                         onChange={(e) => setRoomCode(e.target.value.toUpperCase())} 
                         style={{marginBottom: 0}}
                     />
-                    <button className="btn-primary" onClick={() => name && roomCode && onJoinRoom(name, roomCode)}>Join Room</button>
+                    <button className="btn-primary" disabled={!name.trim() || !roomCode.trim()} style={{opacity: (name.trim() && roomCode.trim()) ? 1 : 0.5}} onClick={() => name && roomCode && onJoinRoom(name, roomCode)}>Join Room</button>
                 </div>
             </div>
         </div>
