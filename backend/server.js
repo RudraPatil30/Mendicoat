@@ -1,13 +1,20 @@
+require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const path = require('path');
 const { Server } = require('socket.io');
+const cookieParser = require('cookie-parser');
+const authRoutes = require('./src/routes/auth');
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
     cors: { origin: "*", methods: ["GET", "POST"] }
 });
+
+app.use(express.json());
+app.use(cookieParser());
+app.use('/api/auth', authRoutes);
 
 // Serve the compiled React frontend
 app.use(express.static(path.join(__dirname, '../frontend/dist')));
