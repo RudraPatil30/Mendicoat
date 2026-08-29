@@ -1,26 +1,32 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import Lobby from './components/Lobby';
 import GameTable from './components/GameTable';
+import Login from './components/Login';
+import Signup from './components/Signup';
+import { AuthProvider, useAuth } from './context/AuthContext';
 
 // Connect to backend server. In production (when served by Express), it connects to the same host.
 const SOCKET_URL = import.meta.env.DEV ? 'http://localhost:3001' : undefined;
 
-function App() {
+const AuthenticatedApp = () => {
+  const { user } = useAuth();
   const [socket, setSocket] = useState(null);
   const [playerId, setPlayerId] = useState(null);
-  const [playerName, setPlayerName] = useState('');
   const [gameState, setGameState] = useState(null);
   const [roomState, setRoomState] = useState(null);
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    const newSocket = io(SOCKET_URL);
+    const newSocket = io(SOCKET_URL, { withCredentials: true });
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
       console.log('Connected to server');
-      setPlayerId(newSocket.id);
+      if (user) {
+        setPlayerId(user.id);
+      }
     });
 
     newSocket.on('room_created', ({ roomId, roomState }) => {
@@ -57,13 +63,11 @@ function App() {
   }, []);
 
   const handleCreateRoom = (name, maxPlayers) => {
-    setPlayerName(name);
-    socket.emit('create_room', { playerName: name, maxPlayers });
+    socket.emit('create_room', { maxPlayers });
   };
 
   const handleJoinRoom = (name, roomId) => {
-    setPlayerName(name);
-    socket.emit('join_room', { roomId, playerName: name });
+    socket.emit('join_room', { roomId });
   };
 
   const handleJoinTeam = (teamId) => {
@@ -82,7 +86,6 @@ function App() {
     if (gameState && socket) {
       socket.emit('play_card', {
         roomId: gameState.roomId,
-        playerId,
         card
       });
     }
@@ -117,6 +120,35 @@ function App() {
       )}
     </>
   );
+};
+
+const ProtectedRoute = ({ children }) => {
+    const { user, loading } = useAuth();
+    if (loading) return <div style={{ color: 'white', padding: '2rem', textAlign: 'center' }}>Loading...</div>;
+    if (!user) return <Navigate to="/login" />;
+    return children;
+};
+
+const PublicRoute = ({ children }) => {
+    const { user, loading } = useAuth();
+    if (loading) return <div style={{ color: 'white', padding: '2rem', textAlign: 'center' }}>Loading...</div>;
+    if (user) return <Navigate to="/" />;
+    return children;
+};
+
+function App() {
+    return (
+        <AuthProvider>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+                    <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
+                    <Route path="/" element={<ProtectedRoute><AuthenticatedApp /></ProtectedRoute>} />
+                    <Route path="*" element={<Navigate to="/" />} />
+                </Routes>
+            </BrowserRouter>
+        </AuthProvider>
+    );
 }
 
 export default App;

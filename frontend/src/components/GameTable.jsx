@@ -1,52 +1,105 @@
 import React from 'react';
 import Card from './Card';
 
+const getFanStyle = (idx, total, position) => {
+    if (total <= 1) return { zIndex: 1 };
+    const centerIdx = (total - 1) / 2;
+    const offset = idx - centerIdx;
+
+    if (position === 'bottom') {
+        // Local player: flat overlapping row, no rotation or lift
+        return { zIndex: idx + 1 };
+    }
+
+    // Opponent hands — directional rotation pointing tips toward center
+    const maxRot = Math.min(20, total * 3);
+    const angle = (offset / centerIdx) * maxRot;
+    const arc = Math.abs(offset) * 2;
+
+    let transform = '';
+    switch (position) {
+        case 'top': transform = `rotate(${angle + 180}deg) translateY(${arc}px)`; break;
+        case 'left': transform = `rotate(${angle + 90}deg) translateY(${arc}px)`; break;
+        case 'right': transform = `rotate(${angle - 90}deg) translateY(${arc}px)`; break;
+        case 'top-left': transform = `rotate(${angle + 135}deg) translateY(${arc}px)`; break;
+        case 'top-right': transform = `rotate(${angle - 135}deg) translateY(${arc}px)`; break;
+        case 'bottom-left': transform = `rotate(${angle + 45}deg) translateY(${arc}px)`; break;
+        case 'bottom-right': transform = `rotate(${angle - 45}deg) translateY(${arc}px)`; break;
+        default: transform = `rotate(${angle}deg)`;
+    }
+
+    return { transform, zIndex: idx + 1 };
+};
+
+const getRelativeSeatInfo = (actualIndex, myIndex, numPlayers) => {
+    const relIndex = (actualIndex - myIndex + numPlayers) % numPlayers;
+    let positionClass, trans;
+    
+    if (numPlayers === 4) {
+        if (relIndex === 0) { positionClass = 'bottom'; trans = 'translate(0, 60px)'; }
+        else if (relIndex === 1) { positionClass = 'left'; trans = 'translate(-60px, 0)'; }
+        else if (relIndex === 2) { positionClass = 'top'; trans = 'translate(0, -60px)'; }
+        else if (relIndex === 3) { positionClass = 'right'; trans = 'translate(60px, 0)'; }
+    } else {
+        if (relIndex === 0) { positionClass = 'bottom'; trans = 'translate(0, 60px)'; }
+        else if (relIndex === 1) { positionClass = 'bottom-left'; trans = 'translate(-40px, 40px)'; }
+        else if (relIndex === 2) { positionClass = 'top-left'; trans = 'translate(-40px, -40px)'; }
+        else if (relIndex === 3) { positionClass = 'top'; trans = 'translate(0, -60px)'; }
+        else if (relIndex === 4) { positionClass = 'top-right'; trans = 'translate(40px, -40px)'; }
+        else if (relIndex === 5) { positionClass = 'bottom-right'; trans = 'translate(40px, 40px)'; }
+    }
+    
+    return { positionClass, trans, relIndex };
+};
+
 const GameTable = ({ gameState, playerId, onPlayCard }) => {
     if (!gameState) return null;
 
-    const myPlayer = gameState.players.find(p => p.id === playerId);
-    const myIndex = gameState.players.findIndex(p => p.id === playerId);
-    
-    // For a spectator or unmatched case
-    if (!myPlayer) return <div>Player not found in this game</div>;
-
     const numPlayers = gameState.players.length;
-    const opponentLayout = [];
+    const myIndex = gameState.players.findIndex(p => p.id === playerId);
+    if (myIndex === -1) return <div>Player not found in this game</div>;
     
-    for(let i=1; i<numPlayers; i++) {
-        const pIndex = (myIndex + i) % numPlayers;
-        const player = gameState.players[pIndex];
-        let cssClass, trans;
-        
-        if (numPlayers === 4) {
-            if (i === 1) { cssClass = 'player-left'; trans = 'translateX(-60px)'; }
-            else if (i === 2) { cssClass = 'player-top'; trans = 'translateY(-60px)'; }
-            else if (i === 3) { cssClass = 'player-right'; trans = 'translateX(60px)'; }
-        } else {
-            if (i === 1) { cssClass = 'player-bottom-left'; trans = 'translate(-40px, 40px)'; }
-            else if (i === 2) { cssClass = 'player-top-left'; trans = 'translate(-40px, -40px)'; }
-            else if (i === 3) { cssClass = 'player-top'; trans = 'translateY(-60px)'; }
-            else if (i === 4) { cssClass = 'player-top-right'; trans = 'translate(40px, -40px)'; }
-            else if (i === 5) { cssClass = 'player-bottom-right'; trans = 'translate(40px, 40px)'; }
-        }
-        opponentLayout.push({ player, cssClass, trans });
-    }
+    // Compute relative layout for all players based on viewer's perspective
+    const tableLayout = gameState.players.map((player, index) => {
+        const { positionClass, trans, relIndex } = getRelativeSeatInfo(index, myIndex, numPlayers);
+        const team = gameState.teams.find(t => t.players.some(p => p.id === player.id));
+        const isLocal = player.id === playerId;
+        return { player, actualIndex: index, relIndex, positionClass, trans, team, isLocal };
+    });
+
+    // Ensure DOM order maps smoothly to relIndex so z-index stacking is naturally layered.
+    tableLayout.sort((a, b) => b.relIndex - a.relIndex);
 
     const currentTrick = gameState.currentRound?.currentTrick?.cards || [];
+    const isTrickComplete = currentTrick.length === numPlayers;
     const turnPlayerId = gameState.players[gameState.currentRound?.turnIndex]?.id;
-    const isMyTurn = turnPlayerId === playerId;
-
-    const renderCardBacks = (count, cssClass) => {
-        const backs = [];
-        for(let i=0; i<count; i++) {
-            backs.push(<div key={i} className="card-back shadow-md"></div>);
+    const isMyTurn = turnPlayerId === playerId && !isTrickComplete;
+    
+    const renderCardFan = (layoutInfo) => {
+        const { player, positionClass, isLocal } = layoutInfo;
+        const count = player.hand.length || 0;
+        
+        if (isLocal) {
+            return (
+                <div className={`card-fan-container fan-${positionClass}`}>
+                    {player.hand.map((card, idx) => {
+                        const style = getFanStyle(idx, count, positionClass);
+                        return (
+                            <div key={idx} style={style} className="fanned-card-wrapper">
+                                <Card card={card} onClick={(c) => isMyTurn && onPlayCard(c)} />
+                            </div>
+                        );
+                    })}
+                </div>
+            );
+        } else {
+            const backs = [];
+            for(let i = 0; i < count; i++) {
+                const style = getFanStyle(i, count, positionClass);
+                backs.push(<div key={i} className="card-back" style={style}></div>);
+            }
+            return <div className={`card-fan-container fan-${positionClass}`}>{backs}</div>;
         }
-        const isHorizontal = cssClass === 'player-top';
-        return (
-            <div style={{display: 'flex', flexDirection: isHorizontal ? 'row' : 'column'}}>
-                {backs}
-            </div>
-        );
     };
 
     const getPlayedCard = (pId) => {
@@ -54,72 +107,99 @@ const GameTable = ({ gameState, playerId, onPlayCard }) => {
         return play ? play.card : null;
     };
 
-    return (
-        <div className="game-container">
-            <div className="game-info glass">
-                <h2>Room: {gameState.roomId}</h2>
-                <div style={{display: 'flex', gap: '1rem', marginTop: '1rem'}}>
-                    <div style={{textAlign: 'center'}}>
-                        <p style={{color: 'var(--text-muted)'}}>Team A (10s)</p>
-                        <h3>{gameState.teams[0].capturedCards.filter(c => c.isTen).length}</h3>
-                    </div>
-                    <div style={{textAlign: 'center'}}>
-                        <p style={{color: 'var(--text-muted)'}}>Team B (10s)</p>
-                        <h3>{gameState.teams[1].capturedCards.filter(c => c.isTen).length}</h3>
-                    </div>
-                </div>
-                {gameState.hukumSuit && (
-                    <div className="hukum-display">
-                        Hukum: <span style={{color: gameState.hukumSuit === 'Hearts' || gameState.hukumSuit === 'Diamonds' ? 'var(--card-red)' : 'white'}}>{gameState.hukumSuit}</span>
-                    </div>
-                )}
+    const winnerName = isTrickComplete && gameState.currentRound.currentTrick.winnerPlayerId 
+        ? gameState.players.find(p => p.id === gameState.currentRound.currentTrick.winnerPlayerId)?.name 
+        : null;
+
+    const renderSeat = (layoutInfo) => (
+        <div key={layoutInfo.player.id} className={`player-seat player-${layoutInfo.positionClass}`}>
+            <div className={`player-info-badge glass position-${layoutInfo.positionClass}`}>
+                <span className="player-name">{layoutInfo.player.name} {layoutInfo.isLocal ? '(You)' : ''}</span>
+                <span className={`team-badge team-${layoutInfo.team?.id}`}>{layoutInfo.team?.name}</span>
+                <span className="card-count">({layoutInfo.player.hand.length})</span>
             </div>
+            {renderCardFan(layoutInfo)}
+            
+            {layoutInfo.isLocal && (
+                <div className="turn-indicator" style={{marginTop: '1.5rem', height: '40px'}}>
+                    {isMyTurn ? (
+                        <div className="turn-badge active">
+                            <span className="status-dot green"></span>
+                            Your Turn
+                        </div>
+                    ) : !isTrickComplete ? (
+                        <div className="turn-badge waiting">
+                            Waiting for {gameState.players[gameState.currentRound?.turnIndex]?.name}'s turn...
+                        </div>
+                    ) : null}
+                </div>
+            )}
+        </div>
+    );
 
+        <div className="game-container">
             <div className="table-area">
-                
-                {opponentLayout.map(opp => (
-                    <div key={opp.player.id} className={opp.cssClass}>
-                        {renderCardBacks(opp.player.hand.length || 0, opp.cssClass)}
-                    </div>
-                ))}
-
-                <div className="play-center">
-                    {/* Render Opponent Trick Cards */}
-                    {opponentLayout.map(opp => {
-                        const played = getPlayedCard(opp.player.id);
-                        if (!played) return null;
-                        return (
-                            <div key={opp.player.id} className="played-card" style={{transform: opp.trans}}>
-                                <Card card={played} isPlayed={true} />
-                            </div>
-                        );
-                    })}
-
-                    {/* Render My Trick Card */}
-                    {getPlayedCard(myPlayer.id) && (
-                        <div className="played-card" style={{transform: 'translateY(60px)'}}>
-                            <Card card={getPlayedCard(myPlayer.id)} isPlayed={true} />
+                {/* Bottom Left: Game Info (Hukum) */}
+                <div className="game-info bottom-left glass">
+                    <h3 style={{color: 'var(--accent)', fontSize: '1.1rem', marginBottom: '0.2rem'}}>Round {gameState.history.length + 1}</h3>
+                    {gameState.hukumSuit && (
+                        <div className="hukum-display">
+                            Hukum: <span style={{color: gameState.hukumSuit === 'Hearts' || gameState.hukumSuit === 'Diamonds' ? 'var(--card-red)' : 'white'}}>{gameState.hukumSuit}</span>
                         </div>
                     )}
                 </div>
 
-                <div className="player-bottom">
-                    <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-                        {isMyTurn ? (
-                            <h3 style={{color: 'var(--accent)', marginBottom: '10px', animation: 'pulse 1.5s infinite'}}>Your Turn!</h3>
-                        ) : (
-                            <h3 style={{color: 'var(--text-muted)', marginBottom: '10px'}}>Waiting for {gameState.players[gameState.currentRound?.turnIndex]?.name}'s turn...</h3>
-                        )}
-                        <div style={{display: 'flex'}}>
-                            {myPlayer.hand.map((card, idx) => (
-                                <Card 
-                                    key={idx} 
-                                    card={card} 
-                                    onClick={(c) => isMyTurn && onPlayCard(c)} 
-                                />
-                            ))}
+                {/* Top Right: Scoreboard */}
+                <div className="game-info top-right glass">
+                    <div style={{display: 'flex', gap: '2rem'}}>
+                        <div>
+                            <div style={{color: '#3b82f6', fontWeight: 'bold', fontSize: '1.1rem'}}>Team A</div>
+                            <div style={{fontSize: '1.8rem'}}>{gameState.teams[0].capturedCards.filter(c => c.isTen).length}</div>
+                        </div>
+                        <div>
+                            <div style={{color: 'var(--card-red)', fontWeight: 'bold', fontSize: '1.1rem'}}>Team B</div>
+                            <div style={{fontSize: '1.8rem'}}>{gameState.teams[1].capturedCards.filter(c => c.isTen).length}</div>
                         </div>
                     </div>
+                </div>
+
+                <div className="zone-top">
+                    {tableLayout.filter(l => l.positionClass === 'top').map(renderSeat)}
+                </div>
+
+                <div className="zone-middle">
+                    {tableLayout.filter(l => !['top', 'bottom'].includes(l.positionClass)).map(renderSeat)}
+
+                    <div className="play-center">
+                        {/* Render Trick Cards Relative to Player Seat Position */}
+                        {tableLayout.map((layoutInfo, domIdx) => {
+                            const played = getPlayedCard(layoutInfo.player.id);
+                            if (!played) return null;
+                            
+                            const isWinner = isTrickComplete && gameState.currentRound.currentTrick.winnerPlayerId === layoutInfo.player.id;
+                            // Use predictable DOM order matching relIndex to maintain fixed overlap semantics
+                            return (
+                                <div key={layoutInfo.player.id} className={`played-card card-position-${layoutInfo.positionClass} ${isWinner ? 'winner-card' : ''}`} style={{zIndex: 10 - layoutInfo.relIndex}}>
+                                    <Card card={played} isPlayed={true} />
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {isTrickComplete && (() => {
+                        const winnerTeam = gameState.teams.find(t => t.players.some(p => p.id === gameState.currentRound.currentTrick.winnerPlayerId));
+                        return (
+                            <div className="trick-result-badge glass">
+                                <h2 style={{color: winnerTeam?.id === 'A' ? '#3b82f6' : 'var(--card-red)'}}>
+                                    {winnerTeam?.name.toUpperCase()} SCORES!
+                                </h2>
+                            </div>
+                        );
+                    })()}
+                </div>
+
+                <div className="zone-bottom">
+                    {tableLayout.filter(l => l.positionClass === 'bottom').map(renderSeat)}
                 </div>
             </div>
         </div>
