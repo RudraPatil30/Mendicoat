@@ -193,15 +193,15 @@ body {
 }
 
 .player-bottom {
-  bottom: 20px;
+  bottom: 5px;
   left: 50%;
   transform: translateX(-50%);
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .player-top {
-  top: 20px;
+  top: 60px;
   left: 50%;
   transform: translateX(-50%);
   flex-direction: column;
@@ -209,7 +209,7 @@ body {
 }
 
 .player-left {
-  left: 40px;
+  left: 30px;
   top: 50%;
   transform: translateY(-50%);
   flex-direction: column;
@@ -217,7 +217,7 @@ body {
 }
 
 .player-right {
-  right: 60px;
+  right: 30px;
   top: 50%;
   transform: translateY(-50%);
   flex-direction: column;
@@ -225,8 +225,8 @@ body {
 }
 
 .player-bottom-left { position: absolute; left: 10%; bottom: 20%; transform: translateY(50%); z-index: 2; flex-direction: column; gap: 12px; }
-.player-top-left { position: absolute; left: 15%; top: 15%; transform: translateY(-50%); z-index: 2; flex-direction: column; gap: 12px; }
-.player-top-right { position: absolute; right: 15%; top: 15%; transform: translateY(-50%); z-index: 2; flex-direction: column; gap: 12px; }
+.player-top-left { position: absolute; left: 15%; top: 18%; transform: translateY(-50%); z-index: 2; flex-direction: column; gap: 12px; }
+.player-top-right { position: absolute; right: 18%; top: 18%; transform: translateY(-50%); z-index: 2; flex-direction: column; gap: 12px; }
 .player-bottom-right { position: absolute; right: 10%; bottom: 20%; transform: translateY(50%); z-index: 2; flex-direction: column; gap: 12px; }
 
 .player-info-badge {
@@ -282,12 +282,10 @@ body {
 }
 
 .fanned-card-wrapper {
-  transform: rotate(var(--fan-rotate, 0deg)) translateY(var(--fan-lift, 0px));
   transition: transform 0.3s ease;
-  transform-origin: bottom center;
 }
 .fanned-card-wrapper:hover {
-  transform: rotate(var(--fan-rotate, 0deg)) translateY(calc(var(--fan-lift, 0px) - 25px));
+  transform: translateY(-20px);
   z-index: 50 !important;
 }
 
@@ -296,8 +294,8 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 320px;
-  height: 320px;
+  width: 400px;
+  height: 400px;
   z-index: 15;
 }
 
@@ -309,7 +307,7 @@ body {
   margin: 0;
 }
 
-/* Explicit 4-card cross pattern in the 280x280 central area */
+/* Explicit 4-card cross pattern in the 400x400 central area */
 .played-card.card-position-top {
   top: 0;
   left: 50%;
@@ -358,7 +356,7 @@ body {
   height: 165px;
   background-color: transparent;
   border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+  box-shadow: none;
   cursor: pointer;
   user-select: none;
   position: relative;
@@ -384,7 +382,7 @@ body {
   background-size: 15px 30px;
   border: 4px solid white;
   border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+  box-shadow: none;
   transform-origin: center center;
 }
 
@@ -479,7 +477,7 @@ body {
   gap: 8px;
   background: rgba(15, 23, 42, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: none;
   z-index: 10;
   white-space: nowrap;
 }

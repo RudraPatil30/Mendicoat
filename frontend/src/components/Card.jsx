@@ -26,7 +26,7 @@ const Card = ({ card, onClick, isPlayed }) => {
 
     return (
         <div 
-            className={`card ${colorClass} ${isPlayed ? 'played-card glass' : ''}`}
+            className={`card ${colorClass} ${isPlayed ? 'played' : ''}`}
             onClick={() => onClick && onClick(card)}
         >
             {imageSrc ? (

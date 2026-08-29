@@ -7,15 +7,8 @@ const getFanStyle = (idx, total, position) => {
     const offset = idx - centerIdx;
 
     if (position === 'bottom') {
-        // Parabolic fan for local player — outer cards rotate inward and rise
-        const anglePerCard = total > 10 ? 4 : 5;
-        const angle = offset * anglePerCard;
-        const lift = Math.pow(Math.abs(offset), 1.8) * 3;
-        return {
-            '--fan-rotate': `${angle}deg`,
-            '--fan-lift': `${-lift}px`,
-            zIndex: idx + 1,
-        };
+        // Local player: flat overlapping row, no rotation or lift
+        return { zIndex: idx + 1 };
     }
 
     // Opponent hands — directional rotation pointing tips toward center
