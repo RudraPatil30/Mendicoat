@@ -69,7 +69,8 @@ class GameEngine {
         currentTrick.playCard(playerId, card);
 
         if (currentTrick.isFull()) {
-            this.handleTrickCompletion();
+            currentTrick.winnerPlayerId = RuleEngine.determineTrickWinner(currentTrick, this.gameState.hukumSuit);
+            return { trickComplete: true };
         } else {
             const numPlayers = this.gameState.players.length;
             round.turnIndex = (round.turnIndex + 1) % numPlayers;
@@ -82,11 +83,10 @@ class GameEngine {
         const round = this.gameState.currentRound;
         const currentTrick = round.currentTrick;
 
-        const winnerId = RuleEngine.determineTrickWinner(currentTrick, this.gameState.hukumSuit);
+        const winnerId = currentTrick.winnerPlayerId;
         const winnerTeam = this.gameState.teams.find(t => t.players.some(p => p.id === winnerId));
 
         winnerTeam.captureTrick(currentTrick.cards.map(cPlay => cPlay.card));
-        currentTrick.winnerPlayerId = winnerId;
 
         if (round.isRoundComplete()) {
             this.handleRoundCompletion();

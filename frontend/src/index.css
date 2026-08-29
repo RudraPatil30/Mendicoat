@@ -184,91 +184,111 @@ body {
   overflow: hidden;
 }
 
-.player-top {
+.player-seat {
   position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
+  align-items: center;
   justify-content: center;
-  z-index: 2;
-}
-
-.player-left {
-  position: absolute;
-  left: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  z-index: 2;
-}
-
-.player-bottom-left {
-  position: absolute;
-  left: 20px;
-  bottom: 20%;
-  transform: translateY(50%);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  z-index: 2;
-}
-
-.player-top-left {
-  position: absolute;
-  left: 20px;
-  top: 20%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  z-index: 2;
-}
-
-.player-right {
-  position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  z-index: 2;
-}
-
-.player-bottom-right {
-  position: absolute;
-  right: 20px;
-  bottom: 20%;
-  transform: translateY(50%);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  z-index: 2;
-}
-
-.player-top-right {
-  position: absolute;
-  right: 20px;
-  top: 20%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  z-index: 2;
+  z-index: 10;
 }
 
 .player-bottom {
-  position: absolute;
   bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
+  flex-direction: column;
+  gap: 12px;
+}
+
+.player-top {
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column;
+  gap: 12px;
+}
+
+.player-left {
+  left: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-direction: column;
+  gap: 12px;
+}
+
+.player-right {
+  right: 60px;
+  top: 50%;
+  transform: translateY(-50%);
+  flex-direction: column;
+  gap: 12px;
+}
+
+.player-bottom-left { position: absolute; left: 10%; bottom: 20%; transform: translateY(50%); z-index: 2; flex-direction: column; gap: 12px; }
+.player-top-left { position: absolute; left: 15%; top: 15%; transform: translateY(-50%); z-index: 2; flex-direction: column; gap: 12px; }
+.player-top-right { position: absolute; right: 15%; top: 15%; transform: translateY(-50%); z-index: 2; flex-direction: column; gap: 12px; }
+.player-bottom-right { position: absolute; right: 10%; bottom: 20%; transform: translateY(50%); z-index: 2; flex-direction: column; gap: 12px; }
+
+.player-info-badge {
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
   display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  z-index: 20;
+}
+
+.player-name {
+  font-weight: 600;
+  color: var(--text-light);
+}
+
+.team-badge {
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.team-A { background: #3b82f6; color: white; }
+.team-B { background: var(--card-red); color: white; }
+
+.card-count {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.card-fan-container {
+  display: flex;
+  position: relative;
   justify-content: center;
-  align-items: flex-end;
-  z-index: 10;
+  align-items: center;
+}
+
+.fan-bottom .fanned-card-wrapper, .fan-top .card-back { margin-left: -50px; }
+.fan-bottom .fanned-card-wrapper:first-child, .fan-top .card-back:first-child { margin-left: 0; }
+
+.fan-left, .fan-right { flex-direction: column; }
+.fan-left .card-back, .fan-right .card-back { margin-top: -77px; margin-left: 0; }
+.fan-left .card-back:first-child, .fan-right .card-back:first-child { margin-top: 0; }
+
+/* 6-player fan adjustments */
+.fan-bottom-left .card-back, .fan-bottom-right .card-back, .fan-top-left .card-back, .fan-top-right .card-back {
+  margin-left: -47px; margin-top: -47px;
+}
+.fan-bottom-left .card-back:first-child, .fan-bottom-right .card-back:first-child, .fan-top-left .card-back:first-child, .fan-top-right .card-back:first-child {
+  margin-left: 0; margin-top: 0;
+}
+
+.fanned-card-wrapper {
+  transform: rotate(var(--fan-rotate, 0deg)) translateY(var(--fan-lift, 0px));
+  transition: transform 0.3s ease;
+  transform-origin: bottom center;
+}
+.fanned-card-wrapper:hover {
+  transform: rotate(var(--fan-rotate, 0deg)) translateY(calc(var(--fan-lift, 0px) - 25px));
+  z-index: 50 !important;
 }
 
 .play-center {
@@ -276,94 +296,117 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1;
+  width: 320px;
+  height: 320px;
+  z-index: 15;
+}
+
+.played-card {
+  position: absolute;
+  width: 118px;
+  height: 165px;
+  transition: transform 0.3s ease, top 0.3s ease, left 0.3s ease;
+  margin: 0;
+}
+
+/* Explicit 4-card cross pattern in the 280x280 central area */
+.played-card.card-position-top {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.played-card.card-position-bottom {
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.played-card.card-position-left {
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+.played-card.card-position-right {
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+}
+.played-card.card-position-top-left { top: 10%; left: 10%; }
+.played-card.card-position-top-right { top: 10%; right: 10%; }
+.played-card.card-position-bottom-left { bottom: 10%; left: 10%; }
+.played-card.card-position-bottom-right { bottom: 10%; right: 10%; }
+
+.trick-result-badge {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 10px 24px;
+  border-radius: 30px;
+  text-align: center;
+  z-index: 100;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes popIn {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
 
 .card {
-  width: 100px;
-  height: 140px;
-  background-color: var(--card-bg);
+  width: 118px;
+  height: 165px;
+  background-color: transparent;
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 8px;
-  font-weight: bold;
-  font-size: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
   cursor: pointer;
   user-select: none;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, margin 0.2s ease;
   position: relative;
-  margin-left: -20px; /* Reduced overlap so cards are highly visible */
 }
 
-.card:first-child {
-  margin-left: 0;
-}
-
-.card:hover {
-  transform: translateY(-20px);
-  box-shadow: 0 12px 24px rgba(0,0,0,0.4);
-  z-index: 10;
-}
-
-.card.red {
-  color: var(--card-red);
-}
-.card.black {
-  color: var(--card-black);
-}
-
-.card-top-left {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  line-height: 1;
-}
-
-.card-center {
-  font-size: 3rem;
-  align-self: center;
-}
-
-.card-bottom-right {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  transform: rotate(180deg);
-  line-height: 1;
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  pointer-events: none;
 }
 
 .card-back {
-  width: 80px;
-  height: 112px;
-  background: repeating-linear-gradient(45deg, #0f172a, #0f172a 10px, #1e293b 10px, #1e293b 20px);
+  width: 94px;
+  height: 132px;
+  background: 
+    linear-gradient(115deg, transparent 75%, rgba(255,255,255,.1) 75%) 0 0,
+    linear-gradient(245deg, transparent 75%, rgba(255,255,255,.1) 75%) 0 0,
+    linear-gradient(115deg, transparent 75%, rgba(255,255,255,.1) 75%) 7px -15px,
+    linear-gradient(245deg, transparent 75%, rgba(255,255,255,.1) 75%) 7px -15px,
+    #0f172a;
+  background-size: 15px 30px;
   border: 4px solid white;
-  border-radius: 6px;
-  margin-left: -40px; /* Spread out top player's cards */
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+  transform-origin: center center;
 }
-.card-back:first-child { margin-left: 0; }
 
-.player-left .card-back, .player-right .card-back,
-.player-bottom-left .card-back, .player-bottom-right .card-back,
-.player-top-left .card-back, .player-top-right .card-back {
-  margin-left: 0;
-  margin-top: -60px; /* Spread out side players' cards */
+.game-info.top-left {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  padding: 12px 18px;
+  z-index: 200;
+  min-width: 120px;
+  max-width: 180px;
+  background: rgba(15, 23, 42, 0.85);
 }
-.player-left .card-back:first-child, .player-right .card-back:first-child,
-.player-bottom-left .card-back:first-child, .player-bottom-right .card-back:first-child,
-.player-top-left .card-back:first-child, .player-top-right .card-back:first-child { margin-top: 0; }
 
-.game-info {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  padding: 1rem;
-  z-index: 100;
+.game-info.top-right {
+  position: fixed;
+  top: 15px;
+  right: 20px;
+  padding: 12px 18px;
+  z-index: 200;
+  min-width: 120px;
+  background: rgba(15, 23, 42, 0.85);
 }
 
 /* Responsive scaling for different resolutions */
@@ -395,12 +438,87 @@ body {
   font-size: 1.2rem;
 }
 
-/* Disabled animations to avoid opacity bugs */
-.played-card {
-  position: absolute;
-  margin: 0;
-  transform-origin: center;
+/* played-card styles consolidated in .play-center section above */
+
+.winner-card {
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.8);
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  z-index: 10;
 }
-.played-card:hover {
-  transform: none;
+
+.trick-reveal-overlay {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(15, 23, 42, 0.85);
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  border: 1px solid var(--accent);
+  text-align: center;
+  z-index: 5;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.turn-indicator {
+  display: flex;
+  justify-content: center;
+}
+
+.player-info-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+  white-space: nowrap;
+}
+
+.turn-badge {
+  padding: 0.5rem 1.2rem;
+  border-radius: 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid var(--glass-border);
+}
+
+.turn-badge.active {
+  background: rgba(20, 83, 45, 0.8);
+  border-color: #4ade80;
+  color: #4ade80;
+}
+
+.turn-badge.waiting {
+  color: var(--text-muted);
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.status-dot.green {
+  background-color: #4ade80;
+  box-shadow: 0 0 8px #4ade80;
+  animation: pulse-dot 1.5s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
 }

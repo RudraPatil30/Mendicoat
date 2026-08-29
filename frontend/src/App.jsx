@@ -19,12 +19,14 @@ const AuthenticatedApp = () => {
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
-    const newSocket = io(SOCKET_URL);
+    const newSocket = io(SOCKET_URL, { withCredentials: true });
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
       console.log('Connected to server');
-      setPlayerId(newSocket.id);
+      if (user) {
+        setPlayerId(user.id);
+      }
     });
 
     newSocket.on('room_created', ({ roomId, roomState }) => {
@@ -61,11 +63,11 @@ const AuthenticatedApp = () => {
   }, []);
 
   const handleCreateRoom = (name, maxPlayers) => {
-    socket.emit('create_room', { playerName: name, maxPlayers });
+    socket.emit('create_room', { maxPlayers });
   };
 
   const handleJoinRoom = (name, roomId) => {
-    socket.emit('join_room', { roomId, playerName: name });
+    socket.emit('join_room', { roomId });
   };
 
   const handleJoinTeam = (teamId) => {
@@ -84,7 +86,6 @@ const AuthenticatedApp = () => {
     if (gameState && socket) {
       socket.emit('play_card', {
         roomId: gameState.roomId,
-        playerId,
         card
       });
     }
