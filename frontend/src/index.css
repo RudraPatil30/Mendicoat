@@ -181,9 +181,9 @@ body {
   flex: 1;
   position: relative;
   padding: 1rem;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   height: 100%;
 }
 
