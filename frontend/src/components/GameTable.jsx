@@ -111,6 +111,32 @@ const GameTable = ({ gameState, playerId, onPlayCard }) => {
         ? gameState.players.find(p => p.id === gameState.currentRound.currentTrick.winnerPlayerId)?.name 
         : null;
 
+    const renderSeat = (layoutInfo) => (
+        <div key={layoutInfo.player.id} className={`player-seat player-${layoutInfo.positionClass}`}>
+            <div className={`player-info-badge glass position-${layoutInfo.positionClass}`}>
+                <span className="player-name">{layoutInfo.player.name} {layoutInfo.isLocal ? '(You)' : ''}</span>
+                <span className={`team-badge team-${layoutInfo.team?.id}`}>{layoutInfo.team?.name}</span>
+                <span className="card-count">({layoutInfo.player.hand.length})</span>
+            </div>
+            {renderCardFan(layoutInfo)}
+            
+            {layoutInfo.isLocal && (
+                <div className="turn-indicator" style={{marginTop: '1.5rem', height: '40px'}}>
+                    {isMyTurn ? (
+                        <div className="turn-badge active">
+                            <span className="status-dot green"></span>
+                            Your Turn
+                        </div>
+                    ) : !isTrickComplete ? (
+                        <div className="turn-badge waiting">
+                            Waiting for {gameState.players[gameState.currentRound?.turnIndex]?.name}'s turn...
+                        </div>
+                    ) : null}
+                </div>
+            )}
+        </div>
+    );
+
     return (
         <div className="game-container">
             {/* Top Left: Game Info */}
@@ -138,59 +164,44 @@ const GameTable = ({ gameState, playerId, onPlayCard }) => {
             </div>
 
             <div className="table-area">
-                {/* Render All Seats Using Local Perspective */}
-                {tableLayout.map(layoutInfo => (
-                    <div key={layoutInfo.player.id} className={`player-seat player-${layoutInfo.positionClass}`}>
-                        <div className={`player-info-badge glass position-${layoutInfo.positionClass}`}>
-                            <span className="player-name">{layoutInfo.player.name} {layoutInfo.isLocal ? '(You)' : ''}</span>
-                            <span className={`team-badge team-${layoutInfo.team?.id}`}>{layoutInfo.team?.name}</span>
-                            <span className="card-count">({layoutInfo.player.hand.length})</span>
-                        </div>
-                        {renderCardFan(layoutInfo)}
-                        
-                        {layoutInfo.isLocal && (
-                            <div className="turn-indicator" style={{marginTop: '1.5rem', height: '40px'}}>
-                                {isMyTurn ? (
-                                    <div className="turn-badge active">
-                                        <span className="status-dot green"></span>
-                                        Your Turn
-                                    </div>
-                                ) : !isTrickComplete ? (
-                                    <div className="turn-badge waiting">
-                                        Waiting for {gameState.players[gameState.currentRound?.turnIndex]?.name}'s turn...
-                                    </div>
-                                ) : null}
-                            </div>
-                        )}
-                    </div>
-                ))}
-
-                <div className="play-center">
-                    {/* Render Trick Cards Relative to Player Seat Position */}
-                    {tableLayout.map((layoutInfo, domIdx) => {
-                        const played = getPlayedCard(layoutInfo.player.id);
-                        if (!played) return null;
-                        
-                        const isWinner = isTrickComplete && gameState.currentRound.currentTrick.winnerPlayerId === layoutInfo.player.id;
-                        // Use predictable DOM order matching relIndex to maintain fixed overlap semantics
-                        return (
-                            <div key={layoutInfo.player.id} className={`played-card card-position-${layoutInfo.positionClass} ${isWinner ? 'winner-card' : ''}`} style={{zIndex: 10 - layoutInfo.relIndex}}>
-                                <Card card={played} isPlayed={true} />
-                            </div>
-                        );
-                    })}
+                <div className="zone-top">
+                    {tableLayout.filter(l => l.positionClass === 'top').map(renderSeat)}
                 </div>
 
-                {isTrickComplete && (() => {
-                    const winnerTeam = gameState.teams.find(t => t.players.some(p => p.id === gameState.currentRound.currentTrick.winnerPlayerId));
-                    return (
-                        <div className="trick-result-badge glass">
-                            <h2 style={{color: winnerTeam?.id === 'A' ? '#3b82f6' : 'var(--card-red)'}}>
-                                {winnerTeam?.name.toUpperCase()} SCORES!
-                            </h2>
-                        </div>
-                    );
-                })()}
+                <div className="zone-middle">
+                    {tableLayout.filter(l => !['top', 'bottom'].includes(l.positionClass)).map(renderSeat)}
+
+                    <div className="play-center">
+                        {/* Render Trick Cards Relative to Player Seat Position */}
+                        {tableLayout.map((layoutInfo, domIdx) => {
+                            const played = getPlayedCard(layoutInfo.player.id);
+                            if (!played) return null;
+                            
+                            const isWinner = isTrickComplete && gameState.currentRound.currentTrick.winnerPlayerId === layoutInfo.player.id;
+                            // Use predictable DOM order matching relIndex to maintain fixed overlap semantics
+                            return (
+                                <div key={layoutInfo.player.id} className={`played-card card-position-${layoutInfo.positionClass} ${isWinner ? 'winner-card' : ''}`} style={{zIndex: 10 - layoutInfo.relIndex}}>
+                                    <Card card={played} isPlayed={true} />
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {isTrickComplete && (() => {
+                        const winnerTeam = gameState.teams.find(t => t.players.some(p => p.id === gameState.currentRound.currentTrick.winnerPlayerId));
+                        return (
+                            <div className="trick-result-badge glass">
+                                <h2 style={{color: winnerTeam?.id === 'A' ? '#3b82f6' : 'var(--card-red)'}}>
+                                    {winnerTeam?.name.toUpperCase()} SCORES!
+                                </h2>
+                            </div>
+                        );
+                    })()}
+                </div>
+
+                <div className="zone-bottom">
+                    {tableLayout.filter(l => l.positionClass === 'bottom').map(renderSeat)}
+                </div>
             </div>
         </div>
     );

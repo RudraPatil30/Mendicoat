@@ -182,6 +182,31 @@ body {
   position: relative;
   padding: 1rem;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.zone-top {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 15px;
+}
+
+.zone-bottom {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 10px;
+}
+
+.zone-middle {
+  flex: 1 1 auto;
+  position: relative;
+  min-height: 260px;
 }
 
 .player-seat {
@@ -193,23 +218,21 @@ body {
 }
 
 .player-bottom {
-  bottom: 5px;
-  left: 50%;
-  transform: translateX(-50%);
+  display: flex;
   flex-direction: column;
-  gap: 8px;
+  align-items: center;
+  gap: 4px;
 }
 
 .player-top {
-  top: 60px;
-  left: 50%;
-  transform: translateX(-50%);
+  display: flex;
   flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  gap: 4px;
 }
 
 .player-left {
-  left: 30px;
+  left: 45px;
   top: 50%;
   transform: translateY(-50%);
   flex-direction: column;
@@ -217,7 +240,7 @@ body {
 }
 
 .player-right {
-  right: 30px;
+  right: 45px;
   top: 50%;
   transform: translateY(-50%);
   flex-direction: column;
@@ -225,7 +248,7 @@ body {
 }
 
 .player-bottom-left { position: absolute; left: 10%; bottom: 20%; transform: translateY(50%); z-index: 2; flex-direction: column; gap: 12px; }
-.player-top-left { position: absolute; left: 15%; top: 18%; transform: translateY(-50%); z-index: 2; flex-direction: column; gap: 12px; }
+.player-top-left { position: absolute; left: 18%; top: 18%; transform: translateY(-50%); z-index: 2; flex-direction: column; gap: 12px; }
 .player-top-right { position: absolute; right: 18%; top: 18%; transform: translateY(-50%); z-index: 2; flex-direction: column; gap: 12px; }
 .player-bottom-right { position: absolute; right: 10%; bottom: 20%; transform: translateY(50%); z-index: 2; flex-direction: column; gap: 12px; }
 
@@ -235,7 +258,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
   font-size: 0.9rem;
   z-index: 20;
 }
@@ -270,7 +293,7 @@ body {
 .fan-bottom .fanned-card-wrapper:first-child, .fan-top .card-back:first-child { margin-left: 0; }
 
 .fan-left, .fan-right { flex-direction: column; }
-.fan-left .card-back, .fan-right .card-back { margin-top: -77px; margin-left: 0; }
+.fan-left .card-back, .fan-right .card-back { margin-top: -100px; margin-left: 0; }
 .fan-left .card-back:first-child, .fan-right .card-back:first-child { margin-top: 0; }
 
 /* 6-player fan adjustments */
@@ -309,14 +332,14 @@ body {
 }
 
 /* Tight cross pattern: small directional nudges from the exact center point */
-.played-card.card-position-top    { transform: translate(-50%, -50%) translateY(-55px); }
-.played-card.card-position-bottom { transform: translate(-50%, -50%) translateY(55px); }
-.played-card.card-position-left   { transform: translate(-50%, -50%) translateX(-55px); }
-.played-card.card-position-right  { transform: translate(-50%, -50%) translateX(55px); }
-.played-card.card-position-top-left     { transform: translate(-50%, -50%) translate(-40px, -40px); }
-.played-card.card-position-top-right    { transform: translate(-50%, -50%) translate(40px, -40px); }
-.played-card.card-position-bottom-left  { transform: translate(-50%, -50%) translate(-40px, 40px); }
-.played-card.card-position-bottom-right { transform: translate(-50%, -50%) translate(40px, 40px); }
+.played-card.card-position-top    { transform: translate(-50%, -50%) translateY(-60px); }
+.played-card.card-position-bottom { transform: translate(-50%, -50%) translateY(60px); }
+.played-card.card-position-left   { transform: translate(-50%, -50%) translateX(-60px); }
+.played-card.card-position-right  { transform: translate(-50%, -50%) translateX(60px); }
+.played-card.card-position-top-left     { transform: translate(-50%, -50%) translate(-45px, -45px); }
+.played-card.card-position-top-right    { transform: translate(-50%, -50%) translate(45px, -45px); }
+.played-card.card-position-bottom-left  { transform: translate(-50%, -50%) translate(-45px, 45px); }
+.played-card.card-position-bottom-right { transform: translate(-50%, -50%) translate(45px, 45px); }
 
 .trick-result-badge {
   position: absolute;
