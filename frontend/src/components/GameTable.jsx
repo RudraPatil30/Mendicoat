@@ -52,7 +52,7 @@ const getRelativeSeatInfo = (actualIndex, myIndex, numPlayers) => {
     return { positionClass, trans, relIndex };
 };
 
-const GameTable = ({ gameState, playerId, onPlayCard }) => {
+const GameTable = ({ gameState, roomState, playerId, onPlayCard, onRestart, onExit }) => {
     if (!gameState) return null;
 
     const numPlayers = gameState.players.length;
@@ -203,6 +203,54 @@ const GameTable = ({ gameState, playerId, onPlayCard }) => {
                     {tableLayout.filter(l => l.positionClass === 'bottom').map(renderSeat)}
                 </div>
             </div>
+
+            {/* Game Over Screen */}
+            {gameState.status === 'ENDED' && (() => {
+                const teamATens = gameState.teams[0].capturedCards.filter(c => c.isTen).length;
+                const teamBTens = gameState.teams[1].capturedCards.filter(c => c.isTen).length;
+
+                let winnerText = "It's a Draw!";
+                let winnerColor = 'white';
+                if (teamATens > teamBTens) {
+                    winnerText = "TEAM A WINS!";
+                    winnerColor = '#3b82f6';
+                }
+                if (teamBTens > teamATens) {
+                    winnerText = "TEAM B WINS!";
+                    winnerColor = 'var(--card-red)';
+                }
+
+                const isHost = roomState?.hostId === playerId;
+
+                return (
+                    <div style={{
+                        position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
+                        background: 'rgba(0,0,0,0.85)', zIndex: 1000,
+                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                        color: 'white', backdropFilter: 'blur(8px)'
+                    }}>
+                        <h1 className="title-ornate" style={{ fontSize: '4rem', color: winnerColor, textShadow: '0 0 20px rgba(0,0,0,0.5)', marginBottom: '1rem' }}>
+                            {winnerText}
+                        </h1>
+                        <p style={{ fontSize: '1.5rem', marginBottom: '3rem' }}>
+                            Team A: {teamATens} points | Team B: {teamBTens} points
+                        </p>
+                        <div style={{ display: 'flex', gap: '1rem' }}>
+                            {isHost && (
+                                <button onClick={onRestart} className="btn-primary" style={{ padding: '1rem 2rem', fontSize: '1.2rem' }}>
+                                    Restart Game (Lobby)
+                                </button>
+                            )}
+                            <button onClick={onExit} className="btn-secondary" style={{ padding: '1rem 2rem', fontSize: '1.2rem', background: '#333', border: '1px solid #555', color: 'white', cursor: 'pointer', borderRadius: '4px' }}>
+                                Exit to Dashboard
+                            </button>
+                        </div>
+                        {!isHost && (
+                            <p style={{ marginTop: '1rem', color: '#aaa', fontStyle: 'italic' }}>Waiting for host to restart...</p>
+                        )}
+                    </div>
+                );
+            })()}
         </div>
     );
 };

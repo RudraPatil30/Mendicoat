@@ -206,6 +206,37 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('leave_room', ({ roomId }) => {
+        const room = rooms.get(roomId);
+        if (!room) return;
+        
+        const idx = room.players.findIndex(p => p.socketId === socket.id);
+        if (idx !== -1) {
+            room.players.splice(idx, 1);
+            if (room.players.length === 0) {
+                rooms.delete(roomId);
+                activeGames.delete(roomId);
+            } else {
+                if (room.hostId === socket.userId) {
+                    room.hostId = room.players[0].id;
+                    room.players[0].isHost = true;
+                }
+                io.to(roomId).emit('lobby_update', room);
+            }
+            socket.leave(roomId);
+        }
+    });
+
+    socket.on('return_to_lobby', ({ roomId }) => {
+        const room = rooms.get(roomId);
+        if (!room) return;
+        if (room.hostId !== socket.userId) return socket.emit('error', 'Only host can restart');
+        
+        room.status = 'LOBBY';
+        activeGames.delete(roomId);
+        io.to(roomId).emit('returned_to_lobby', room);
+    });
+
     socket.on('disconnect', () => {
         console.log(`User disconnected: ${socket.id} (User: ${socket.username})`);
         // Remove from rooms if in lobby

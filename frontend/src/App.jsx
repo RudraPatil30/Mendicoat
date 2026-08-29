@@ -44,6 +44,12 @@ const AuthenticatedApp = () => {
       setGameState(initialState);
     });
 
+    newSocket.on('returned_to_lobby', (updatedRoom) => {
+      console.log('Returned to lobby:', updatedRoom);
+      setGameState(null);
+      setRoomState(updatedRoom);
+    });
+
     newSocket.on('state_update', (newState) => {
       console.log('State updated', newState);
       setGameState(newState);
@@ -91,6 +97,20 @@ const AuthenticatedApp = () => {
     }
   };
 
+  const handleRestartGame = () => {
+    if (gameState && socket) {
+      socket.emit('return_to_lobby', { roomId: gameState.roomId });
+    }
+  };
+
+  const handleExitGame = () => {
+    if (gameState && socket) {
+      socket.emit('leave_room', { roomId: gameState.roomId });
+      setGameState(null);
+      setRoomState(null);
+    }
+  };
+
   return (
     <>
       {errorMsg && (
@@ -114,8 +134,11 @@ const AuthenticatedApp = () => {
       ) : (
         <GameTable 
           gameState={gameState} 
+          roomState={roomState}
           playerId={playerId} 
           onPlayCard={handlePlayCard} 
+          onRestart={handleRestartGame}
+          onExit={handleExitGame}
         />
       )}
     </>
