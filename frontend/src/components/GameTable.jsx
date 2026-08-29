@@ -137,6 +137,7 @@ const GameTable = ({ gameState, playerId, onPlayCard }) => {
         </div>
     );
 
+    return (
         <div className="game-container">
             <div className="table-area">
                 {/* Bottom Left: Game Info (Hukum) */}
