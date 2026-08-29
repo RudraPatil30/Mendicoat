@@ -293,45 +293,30 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: 400px;
-  height: 400px;
+  width: 0;
+  height: 0;
   z-index: 15;
 }
 
 .played-card {
   position: absolute;
+  top: 0;
+  left: 0;
   width: 118px;
   height: 165px;
-  transition: transform 0.3s ease, top 0.3s ease, left 0.3s ease;
   margin: 0;
+  transition: transform 0.3s ease;
 }
 
-/* Explicit 4-card cross pattern in the 400x400 central area */
-.played-card.card-position-top {
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-}
-.played-card.card-position-bottom {
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-}
-.played-card.card-position-left {
-  top: 50%;
-  left: 0;
-  transform: translateY(-50%);
-}
-.played-card.card-position-right {
-  top: 50%;
-  right: 0;
-  transform: translateY(-50%);
-}
-.played-card.card-position-top-left { top: 10%; left: 10%; }
-.played-card.card-position-top-right { top: 10%; right: 10%; }
-.played-card.card-position-bottom-left { bottom: 10%; left: 10%; }
-.played-card.card-position-bottom-right { bottom: 10%; right: 10%; }
+/* Tight cross pattern: small directional nudges from the exact center point */
+.played-card.card-position-top    { transform: translate(-50%, -50%) translateY(-55px); }
+.played-card.card-position-bottom { transform: translate(-50%, -50%) translateY(55px); }
+.played-card.card-position-left   { transform: translate(-50%, -50%) translateX(-55px); }
+.played-card.card-position-right  { transform: translate(-50%, -50%) translateX(55px); }
+.played-card.card-position-top-left     { transform: translate(-50%, -50%) translate(-40px, -40px); }
+.played-card.card-position-top-right    { transform: translate(-50%, -50%) translate(40px, -40px); }
+.played-card.card-position-bottom-left  { transform: translate(-50%, -50%) translate(-40px, 40px); }
+.played-card.card-position-bottom-right { transform: translate(-50%, -50%) translate(40px, 40px); }
 
 .trick-result-badge {
   position: absolute;
