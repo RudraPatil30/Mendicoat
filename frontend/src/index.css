@@ -334,14 +334,14 @@ body {
 }
 
 /* Tight cross pattern: small directional nudges from the exact center point */
-.played-card.card-position-top    { transform: translate(-50%, -50%) translateY(-60px); }
-.played-card.card-position-bottom { transform: translate(-50%, -50%) translateY(60px); }
-.played-card.card-position-left   { transform: translate(-50%, -50%) translateX(-60px); }
-.played-card.card-position-right  { transform: translate(-50%, -50%) translateX(60px); }
-.played-card.card-position-top-left     { transform: translate(-50%, -50%) translate(-45px, -45px); }
-.played-card.card-position-top-right    { transform: translate(-50%, -50%) translate(45px, -45px); }
-.played-card.card-position-bottom-left  { transform: translate(-50%, -50%) translate(-45px, 45px); }
-.played-card.card-position-bottom-right { transform: translate(-50%, -50%) translate(45px, 45px); }
+.played-card.card-position-top    { transform: translate(-50%, -50%) translateY(-25px); }
+.played-card.card-position-bottom { transform: translate(-50%, -50%) translateY(25px); }
+.played-card.card-position-left   { transform: translate(-50%, -50%) translateX(-25px); }
+.played-card.card-position-right  { transform: translate(-50%, -50%) translateX(25px); }
+.played-card.card-position-top-left     { transform: translate(-50%, -50%) translate(-18px, -18px); }
+.played-card.card-position-top-right    { transform: translate(-50%, -50%) translate(18px, -18px); }
+.played-card.card-position-bottom-left  { transform: translate(-50%, -50%) translate(-18px, 18px); }
+.played-card.card-position-bottom-right { transform: translate(-50%, -50%) translate(18px, 18px); }
 
 .trick-result-badge {
   position: absolute;
@@ -396,25 +396,26 @@ body {
   transform-origin: center center;
 }
 
-.game-info.top-left {
-  position: fixed;
-  top: 15px;
-  left: 15px;
-  padding: 12px 18px;
+.game-info {
+  position: absolute;
+  padding: 10px 15px;
   z-index: 200;
-  min-width: 120px;
-  max-width: 180px;
   background: rgba(15, 23, 42, 0.85);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.game-info.bottom-left {
+  bottom: 20px;
+  left: 20px;
+  min-width: 120px;
 }
 
 .game-info.top-right {
-  position: fixed;
-  top: 15px;
+  top: 20px;
   right: 20px;
-  padding: 12px 18px;
-  z-index: 200;
   min-width: 120px;
-  background: rgba(15, 23, 42, 0.85);
 }
 
 /* Responsive scaling for different resolutions */

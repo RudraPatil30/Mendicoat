@@ -137,33 +137,32 @@ const GameTable = ({ gameState, playerId, onPlayCard }) => {
         </div>
     );
 
-    return (
         <div className="game-container">
-            {/* Top Left: Game Info */}
-            <div className="game-info top-left glass">
-                <h3 style={{color: 'var(--accent)', fontSize: '1.1rem', marginBottom: '0.2rem'}}>Round {gameState.history.length + 1}</h3>
-                {gameState.hukumSuit && (
-                    <div className="hukum-display">
-                        Hukum: <span style={{color: gameState.hukumSuit === 'Hearts' || gameState.hukumSuit === 'Diamonds' ? 'var(--card-red)' : 'white'}}>{gameState.hukumSuit}</span>
-                    </div>
-                )}
-            </div>
+            <div className="table-area">
+                {/* Bottom Left: Game Info (Hukum) */}
+                <div className="game-info bottom-left glass">
+                    <h3 style={{color: 'var(--accent)', fontSize: '1.1rem', marginBottom: '0.2rem'}}>Round {gameState.history.length + 1}</h3>
+                    {gameState.hukumSuit && (
+                        <div className="hukum-display">
+                            Hukum: <span style={{color: gameState.hukumSuit === 'Hearts' || gameState.hukumSuit === 'Diamonds' ? 'var(--card-red)' : 'white'}}>{gameState.hukumSuit}</span>
+                        </div>
+                    )}
+                </div>
 
-            {/* Top Right: Scoreboard */}
-            <div className="game-info top-right glass">
-                <div style={{display: 'flex', gap: '2rem'}}>
-                    <div>
-                        <div style={{color: '#3b82f6', fontWeight: 'bold', fontSize: '1.1rem'}}>Team A</div>
-                        <div style={{fontSize: '1.8rem'}}>{gameState.teams[0].capturedCards.filter(c => c.isTen).length}</div>
-                    </div>
-                    <div>
-                        <div style={{color: 'var(--card-red)', fontWeight: 'bold', fontSize: '1.1rem'}}>Team B</div>
-                        <div style={{fontSize: '1.8rem'}}>{gameState.teams[1].capturedCards.filter(c => c.isTen).length}</div>
+                {/* Top Right: Scoreboard */}
+                <div className="game-info top-right glass">
+                    <div style={{display: 'flex', gap: '2rem'}}>
+                        <div>
+                            <div style={{color: '#3b82f6', fontWeight: 'bold', fontSize: '1.1rem'}}>Team A</div>
+                            <div style={{fontSize: '1.8rem'}}>{gameState.teams[0].capturedCards.filter(c => c.isTen).length}</div>
+                        </div>
+                        <div>
+                            <div style={{color: 'var(--card-red)', fontWeight: 'bold', fontSize: '1.1rem'}}>Team B</div>
+                            <div style={{fontSize: '1.8rem'}}>{gameState.teams[1].capturedCards.filter(c => c.isTen).length}</div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div className="table-area">
                 <div className="zone-top">
                     {tableLayout.filter(l => l.positionClass === 'top').map(renderSeat)}
                 </div>
