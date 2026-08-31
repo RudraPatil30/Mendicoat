@@ -79,6 +79,11 @@ class GameEngine {
         return { success: true };
     }
 
+    areAllMendisCollected() {
+        const totalTens = this.gameState.teams.reduce((acc, t) => acc + t.getCapturedTensCount(), 0);
+        return totalTens >= 4;
+    }
+
     handleTrickCompletion() {
         const round = this.gameState.currentRound;
         const currentTrick = round.currentTrick;
@@ -88,7 +93,7 @@ class GameEngine {
 
         winnerTeam.captureTrick(currentTrick.cards.map(cPlay => cPlay.card));
 
-        if (round.isRoundComplete()) {
+        if (round.isRoundComplete() || this.areAllMendisCollected()) {
             this.handleRoundCompletion();
         } else {
             const winnerIndex = this.gameState.players.findIndex(p => p.id === winnerId);

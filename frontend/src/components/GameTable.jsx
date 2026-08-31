@@ -152,6 +152,7 @@ const GameTable = ({ gameState, roomState, playerId, onPlayCard, onRestart, onEx
 
                 {/* Top Right: Scoreboard */}
                 <div className="game-info top-right glass">
+                    <div style={{fontSize: '0.8rem', color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.3rem', textAlign: 'center'}}>Mendis Collected</div>
                     <div style={{display: 'flex', gap: '2rem'}}>
                         <div>
                             <div style={{color: '#3b82f6', fontWeight: 'bold', fontSize: '1.1rem'}}>Team A</div>
@@ -206,16 +207,18 @@ const GameTable = ({ gameState, roomState, playerId, onPlayCard, onRestart, onEx
 
             {/* Game Over Screen */}
             {gameState.status === 'ENDED' && (() => {
-                const teamATens = gameState.teams[0].capturedCards.filter(c => c.isTen).length;
-                const teamBTens = gameState.teams[1].capturedCards.filter(c => c.isTen).length;
+                const teamA = gameState.teams[0];
+                const teamB = gameState.teams[1];
+                const teamATens = teamA.capturedCards.filter(c => c.isTen).length;
+                const teamBTens = teamB.capturedCards.filter(c => c.isTen).length;
 
                 let winnerText = "It's a Draw!";
-                let winnerColor = 'white';
+                let winnerColor = '#aaaaaa';
+                
                 if (teamATens > teamBTens) {
                     winnerText = "TEAM A WINS!";
                     winnerColor = '#3b82f6';
-                }
-                if (teamBTens > teamATens) {
+                } else if (teamBTens > teamATens) {
                     winnerText = "TEAM B WINS!";
                     winnerColor = 'var(--card-red)';
                 }
@@ -229,25 +232,57 @@ const GameTable = ({ gameState, roomState, playerId, onPlayCard, onRestart, onEx
                         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                         color: 'white', backdropFilter: 'blur(8px)'
                     }}>
-                        <h1 className="title-ornate" style={{ fontSize: '4rem', color: winnerColor, textShadow: '0 0 20px rgba(0,0,0,0.5)', marginBottom: '1rem' }}>
-                            {winnerText}
-                        </h1>
-                        <p style={{ fontSize: '1.5rem', marginBottom: '3rem' }}>
-                            Team A: {teamATens} points | Team B: {teamBTens} points
-                        </p>
-                        <div style={{ display: 'flex', gap: '1rem' }}>
-                            {isHost && (
-                                <button onClick={onRestart} className="btn-primary" style={{ padding: '1rem 2rem', fontSize: '1.2rem' }}>
-                                    Restart Game (Lobby)
+                        <div className="glass" style={{
+                            padding: '3rem',
+                            borderRadius: '16px',
+                            border: `2px solid ${winnerColor}`,
+                            boxShadow: `0 0 40px ${winnerColor}40`,
+                            textAlign: 'center',
+                            minWidth: '500px'
+                        }}>
+                            <h1 className="title-ornate" style={{ fontSize: '3.5rem', color: winnerColor, textShadow: '0 0 20px rgba(0,0,0,0.5)', marginBottom: '2rem' }}>
+                                {winnerText}
+                            </h1>
+                            
+                            <div style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-around', gap: '2rem' }}>
+                                <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '1rem', borderRadius: '12px', flex: 1 }}>
+                                    <h3 style={{ color: '#3b82f6', marginBottom: '1rem', fontSize: '1.5rem' }}>Team A ({teamATens} Mendis)</h3>
+                                    <ul style={{ listStyle: 'none', padding: 0, fontSize: '1.2rem' }}>
+                                        {teamA.players.map(p => (
+                                            <li key={p.id} style={{ margin: '0.5rem 0', display: 'flex', justifyContent: 'space-between' }}>
+                                                <span>{p.name}</span>
+                                                <span style={{ fontWeight: 'bold', color: '#3b82f6' }}>+{teamATens}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                                <div style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '1rem', borderRadius: '12px', flex: 1 }}>
+                                    <h3 style={{ color: 'var(--card-red)', marginBottom: '1rem', fontSize: '1.5rem' }}>Team B ({teamBTens} Mendis)</h3>
+                                    <ul style={{ listStyle: 'none', padding: 0, fontSize: '1.2rem' }}>
+                                        {teamB.players.map(p => (
+                                            <li key={p.id} style={{ margin: '0.5rem 0', display: 'flex', justifyContent: 'space-between' }}>
+                                                <span>{p.name}</span>
+                                                <span style={{ fontWeight: 'bold', color: 'var(--card-red)' }}>+{teamBTens}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                                {isHost && (
+                                    <button onClick={onRestart} className="btn-primary" style={{ padding: '1rem 2rem', fontSize: '1.2rem' }}>
+                                        Restart Game (Lobby)
+                                    </button>
+                                )}
+                                <button onClick={onExit} className="btn-secondary" style={{ padding: '1rem 2rem', fontSize: '1.2rem', background: '#333', border: '1px solid #555', color: 'white', cursor: 'pointer', borderRadius: '4px' }}>
+                                    Exit to Dashboard
                                 </button>
+                            </div>
+                            {!isHost && (
+                                <p style={{ marginTop: '1rem', color: '#aaa', fontStyle: 'italic' }}>Waiting for host to restart...</p>
                             )}
-                            <button onClick={onExit} className="btn-secondary" style={{ padding: '1rem 2rem', fontSize: '1.2rem', background: '#333', border: '1px solid #555', color: 'white', cursor: 'pointer', borderRadius: '4px' }}>
-                                Exit to Dashboard
-                            </button>
                         </div>
-                        {!isHost && (
-                            <p style={{ marginTop: '1rem', color: '#aaa', fontStyle: 'italic' }}>Waiting for host to restart...</p>
-                        )}
                     </div>
                 );
             })()}

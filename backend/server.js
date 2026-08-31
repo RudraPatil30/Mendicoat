@@ -196,8 +196,41 @@ io.on('connection', (socket) => {
             io.to(roomId).emit('state_update', engine.gameState);
 
             if (result && result.trickComplete) {
-                setTimeout(() => {
+                setTimeout(async () => {
                     engine.handleTrickCompletion();
+                    
+                    if (engine.gameState.status === 'ENDED' && !engine.gameState.savedToDb) {
+                        engine.gameState.savedToDb = true;
+                        try {
+                            const teamATens = engine.gameState.teams[0].getCapturedTensCount();
+                            const teamBTens = engine.gameState.teams[1].getCapturedTensCount();
+                            
+                            let winningTeam = null;
+                            if (teamATens > teamBTens) winningTeam = engine.gameState.teams[0].id;
+                            else if (teamBTens > teamATens) winningTeam = engine.gameState.teams[1].id;
+
+                            await prisma.game.create({
+                                data: {
+                                    roomId: roomId,
+                                    winningTeam: winningTeam,
+                                    participants: {
+                                        create: engine.gameState.players.map(p => {
+                                            const t = engine.gameState.teams.find(team => team.players.some(tp => tp.id === p.id));
+                                            return {
+                                                userId: p.id,
+                                                team: t.id,
+                                                score: t.getCapturedTensCount()
+                                            };
+                                        })
+                                    }
+                                }
+                            });
+                            console.log(`Game in room ${roomId} saved to database.`);
+                        } catch (err) {
+                            console.error("Failed to save game to database:", err);
+                        }
+                    }
+
                     io.to(roomId).emit('state_update', engine.gameState);
                 }, 5000);
             }
