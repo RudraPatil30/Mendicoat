@@ -189,13 +189,14 @@ const GameTable = ({ gameState, roomState, playerId, onPlayCard, onRestart, onEx
                     <div className="play-center">
                         {/* Render Trick Cards Relative to Player Seat Position */}
                         {tableLayout.map((layoutInfo, domIdx) => {
-                            const played = getPlayedCard(layoutInfo.player.id);
-                            if (!played) return null;
+                            const playIndex = currentTrick.findIndex(c => c.playerId === layoutInfo.player.id);
+                            if (playIndex === -1) return null;
+                            const played = currentTrick[playIndex].card;
                             
                             const isWinner = isTrickComplete && gameState.currentRound.currentTrick.winnerPlayerId === layoutInfo.player.id;
-                            // Use predictable DOM order matching relIndex to maintain fixed overlap semantics
+                            // Use play order for z-index so the latest card is on top
                             return (
-                                <div key={layoutInfo.player.id} className={`played-card card-position-${layoutInfo.positionClass} ${isWinner ? 'winner-card' : ''}`} style={{zIndex: 10 - layoutInfo.relIndex}}>
+                                <div key={layoutInfo.player.id} className={`played-card card-position-${layoutInfo.positionClass} ${isWinner ? 'winner-card' : ''}`} style={{zIndex: 10 + playIndex}}>
                                     <Card card={played} isPlayed={true} />
                                 </div>
                             );

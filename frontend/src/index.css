@@ -334,14 +334,14 @@ body {
 }
 
 /* Tight cross pattern: small directional nudges from the exact center point */
-.played-card.card-position-top    { transform: translate(-50%, -50%) translateY(-25px); }
-.played-card.card-position-bottom { transform: translate(-50%, -50%) translateY(25px); }
-.played-card.card-position-left   { transform: translate(-50%, -50%) translateX(-25px); }
-.played-card.card-position-right  { transform: translate(-50%, -50%) translateX(25px); }
-.played-card.card-position-top-left     { transform: translate(-50%, -50%) translate(-18px, -18px); }
-.played-card.card-position-top-right    { transform: translate(-50%, -50%) translate(18px, -18px); }
-.played-card.card-position-bottom-left  { transform: translate(-50%, -50%) translate(-18px, 18px); }
-.played-card.card-position-bottom-right { transform: translate(-50%, -50%) translate(18px, 18px); }
+.played-card.card-position-top    { transform: translate(-50%, -50%) translateY(-50px); }
+.played-card.card-position-bottom { transform: translate(-50%, -50%) translateY(50px); }
+.played-card.card-position-left   { transform: translate(-50%, -50%) translateX(-50px); }
+.played-card.card-position-right  { transform: translate(-50%, -50%) translateX(50px); }
+.played-card.card-position-top-left     { transform: translate(-50%, -50%) translate(-35px, -35px); }
+.played-card.card-position-top-right    { transform: translate(-50%, -50%) translate(35px, -35px); }
+.played-card.card-position-bottom-left  { transform: translate(-50%, -50%) translate(-35px, 35px); }
+.played-card.card-position-bottom-right { transform: translate(-50%, -50%) translate(35px, 35px); }
 
 .trick-result-badge {
   position: absolute;
