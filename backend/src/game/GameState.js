@@ -16,7 +16,7 @@ class GameState {
     }
 
     setPlayers(players) {
-        if (players.length !== 4) throw new Error("Game requires exactly 4 players");
+        if (players.length !== 4 && players.length !== 6) throw new Error("Game requires exactly 4 or 6 players");
         this.players = players;
     }
 
