@@ -74,7 +74,7 @@ const Lobby = ({ roomState, playerId, onCreateRoom, onJoinRoom, onJoinTeam, onSt
                     <button className="btn-primary" onClick={() => onCreateRoom(user?.username, 4)}>
                         Create 4-Player
                     </button>
-                    <button className="btn-dark-gold" onClick={() => onCreateRoom(user?.username, 6)}>
+                    <button className="btn-primary" onClick={() => onCreateRoom(user?.username, 6)} style={{ background: 'linear-gradient(to bottom, #b45309, #78350f)' }}>
                         Create 6-Player
                     </button>
                 </div>

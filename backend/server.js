@@ -99,12 +99,13 @@ io.on('connection', (socket) => {
 
     // Create a new room (Host)
     socket.on('create_room', ({ maxPlayers }) => {
+        const numMaxPlayers = parseInt(maxPlayers, 10);
         const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
         const player = { socketId: socket.id, id: socket.userId, name: socket.username, team: null, isHost: true };
         
         rooms.set(roomId, {
             id: roomId,
-            maxPlayers: maxPlayers,
+            maxPlayers: numMaxPlayers,
             hostId: socket.userId,
             players: [player],
             status: 'LOBBY'
@@ -152,36 +153,41 @@ io.on('connection', (socket) => {
 
     // Start game (Host only)
     socket.on('start_game', ({ roomId }) => {
-        const room = rooms.get(roomId);
-        if (!room) return;
-        if (room.hostId !== socket.userId) return socket.emit('error', 'Only host can start');
-        
-        const teamA = room.players.filter(p => p.team === 'A');
-        const teamB = room.players.filter(p => p.team === 'B');
-        
-        if (teamA.length !== room.maxPlayers / 2 || teamB.length !== room.maxPlayers / 2) {
-            return socket.emit('error', 'Teams must be fully balanced to start');
+        try {
+            const room = rooms.get(roomId);
+            if (!room) return;
+            if (room.hostId !== socket.userId) return socket.emit('error', 'Only host can start');
+            
+            const teamA = room.players.filter(p => p.team === 'A');
+            const teamB = room.players.filter(p => p.team === 'B');
+            
+            if (teamA.length !== room.maxPlayers / 2 || teamB.length !== room.maxPlayers / 2) {
+                return socket.emit('error', 'Teams must be fully balanced to start');
+            }
+
+            room.status = 'PLAYING';
+            io.to(roomId).emit('lobby_update', room);
+
+            const GameEngine = require('./src/game/GameEngine');
+            const Team = require('./src/game/Team');
+            const Player = require('./src/game/Player');
+
+            const engine = new GameEngine(roomId);
+            const maxPerTeam = room.maxPlayers / 2;
+            const t1 = new Team('A', 'Team A', maxPerTeam);
+            const t2 = new Team('B', 'Team B', maxPerTeam);
+
+            teamA.forEach(p => t1.addPlayer(new Player(p.id, p.name, t1.id)));
+            teamB.forEach(p => t2.addPlayer(new Player(p.id, p.name, t2.id)));
+
+            engine.initializeGame(t1, t2);
+            activeGames.set(roomId, engine);
+
+            io.to(roomId).emit('game_start', engine.gameState);
+        } catch (err) {
+            console.error("Error starting game:", err);
+            socket.emit('error', 'Failed to start game: ' + err.message);
         }
-
-        room.status = 'PLAYING';
-        io.to(roomId).emit('lobby_update', room);
-
-        const GameEngine = require('./src/game/GameEngine');
-        const Team = require('./src/game/Team');
-        const Player = require('./src/game/Player');
-
-        const engine = new GameEngine(roomId);
-        const maxPerTeam = room.maxPlayers / 2;
-        const t1 = new Team('A', 'Team A', maxPerTeam);
-        const t2 = new Team('B', 'Team B', maxPerTeam);
-
-        teamA.forEach(p => t1.addPlayer(new Player(p.id, p.name, t1.id)));
-        teamB.forEach(p => t2.addPlayer(new Player(p.id, p.name, t2.id)));
-
-        engine.initializeGame(t1, t2);
-        activeGames.set(roomId, engine);
-
-        io.to(roomId).emit('game_start', engine.gameState);
     });
 
     socket.on('play_card', ({ roomId, card }) => {

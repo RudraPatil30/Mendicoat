@@ -154,13 +154,27 @@ const GameTable = ({ gameState, roomState, playerId, onPlayCard, onRestart, onEx
                 <div className="game-info top-right glass">
                     <div style={{fontSize: '0.8rem', color: '#aaa', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.3rem', textAlign: 'center'}}>Mendis Collected</div>
                     <div style={{display: 'flex', gap: '2rem'}}>
-                        <div>
+                        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                             <div style={{color: '#3b82f6', fontWeight: 'bold', fontSize: '1.1rem'}}>Team A</div>
                             <div style={{fontSize: '1.8rem'}}>{gameState.teams[0].capturedCards.filter(c => c.isTen).length}</div>
+                            <div style={{display: 'flex', gap: '4px', marginTop: '4px'}}>
+                                {gameState.teams[0].capturedCards.filter(c => c.isTen).map((c, i) => {
+                                    const isRed = c.suit === 'Hearts' || c.suit === 'Diamonds';
+                                    const symbol = c.suit === 'Hearts' ? '♥' : c.suit === 'Diamonds' ? '♦' : c.suit === 'Clubs' ? '♣' : '♠';
+                                    return <span key={i} style={{color: isRed ? '#ef4444' : 'white', fontSize: '1.2rem'}}>{symbol}</span>;
+                                })}
+                            </div>
                         </div>
-                        <div>
+                        <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
                             <div style={{color: 'var(--card-red)', fontWeight: 'bold', fontSize: '1.1rem'}}>Team B</div>
                             <div style={{fontSize: '1.8rem'}}>{gameState.teams[1].capturedCards.filter(c => c.isTen).length}</div>
+                            <div style={{display: 'flex', gap: '4px', marginTop: '4px'}}>
+                                {gameState.teams[1].capturedCards.filter(c => c.isTen).map((c, i) => {
+                                    const isRed = c.suit === 'Hearts' || c.suit === 'Diamonds';
+                                    const symbol = c.suit === 'Hearts' ? '♥' : c.suit === 'Diamonds' ? '♦' : c.suit === 'Clubs' ? '♣' : '♠';
+                                    return <span key={i} style={{color: isRed ? '#ef4444' : 'white', fontSize: '1.2rem'}}>{symbol}</span>;
+                                })}
+                            </div>
                         </div>
                     </div>
                 </div>
