@@ -238,7 +238,7 @@ io.on('connection', (socket) => {
                     }
 
                     io.to(roomId).emit('state_update', engine.gameState);
-                }, 5000);
+                }, 3000);
             }
         } catch (err) {
             socket.emit('error', err.message);
@@ -278,13 +278,27 @@ io.on('connection', (socket) => {
 
     socket.on('disconnect', () => {
         console.log(`User disconnected: ${socket.id} (User: ${socket.username})`);
-        // Remove from rooms if in lobby
         for (const [roomId, room] of rooms.entries()) {
-            if (room.status === 'LOBBY') {
-                const idx = room.players.findIndex(p => p.socketId === socket.id);
-                if (idx !== -1) {
+            const idx = room.players.findIndex(p => p.socketId === socket.id);
+            if (idx !== -1) {
+                if (room.status === 'LOBBY') {
+                    // Remove from lobby immediately
                     room.players.splice(idx, 1);
-                    io.to(roomId).emit('lobby_update', room);
+                    if (room.players.length === 0) {
+                        rooms.delete(roomId);
+                        activeGames.delete(roomId);
+                    } else {
+                        io.to(roomId).emit('lobby_update', room);
+                    }
+                } else {
+                    // Mark as disconnected in a playing game
+                    room.players[idx].socketId = null;
+                    const allDisconnected = room.players.every(p => p.socketId === null);
+                    if (allDisconnected) {
+                        console.log(`All players disconnected from room ${roomId}. Cleaning up.`);
+                        rooms.delete(roomId);
+                        activeGames.delete(roomId);
+                    }
                 }
             }
         }
